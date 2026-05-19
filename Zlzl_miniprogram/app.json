@@ -1,5 +1,18 @@
 {
-  "pages": ["pages/index/index"],
+  "pages": [
+    "pages/index/index",
+    "pages/library-list/index",
+    "pages/library-create/index",
+    "pages/library-detail/index",
+    "pages/station-detail/index",
+    "pages/class-record/index",
+    "pages/class-processing/index",
+    "pages/node-summary/index",
+    "pages/study-node/index",
+    "pages/quiz-run/index",
+    "pages/flashcard-run/index",
+    "pages/node-result/index"
+  ],
   "window": {
     "navigationBarTitleText": "Zlzl",
     "navigationBarBackgroundColor": "#ffffff",

@@ -2,5 +2,6 @@
   <view class="hero">
     <text class="title">{{title}}</text>
     <text class="subtitle">{{subtitle}}</text>
+    <button class="primary-action" bindtap="goToMainPath">进入课程学习库</button>
   </view>
 </view>
