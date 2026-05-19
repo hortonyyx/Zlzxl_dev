@@ -1,6 +1,20 @@
 export const useMockCloud = true;
 
-export type CloudFunctionName = 'submitClass' | 'advanceClass' | 'planStudy' | 'gradeModule';
+export type CloudFunctionName =
+  | 'listLibraries'
+  | 'getLibrary'
+  | 'createLibrary'
+  | 'getMailuo'
+  | 'listKnowledgePoints'
+  | 'listMasterySignals'
+  | 'getClassSession'
+  | 'submitClass'
+  | 'advanceClass'
+  | 'planStudy'
+  | 'getStudyNode'
+  | 'getQuizQuestions'
+  | 'getFlashcards'
+  | 'gradeModule';
 
 export async function callCloud<TRequest, TResponse>(
   name: CloudFunctionName,

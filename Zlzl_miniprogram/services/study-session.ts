@@ -12,7 +12,7 @@ export function planStudy(libraryId: string): Promise<StudySession> {
 }
 
 export function getStudyNode(studyNodeId: string): Promise<LearningNode | null> {
-  return Promise.resolve(mockStore.nodes.find((node) => node._id === studyNodeId && node.type === 'study') ?? null);
+  return callCloud('getStudyNode', { studyNodeId }, mockGetStudyNode);
 }
 
 function mockPlanStudy(request: PlanStudyRequest): StudySession {
@@ -48,4 +48,8 @@ function mockPlanStudy(request: PlanStudyRequest): StudySession {
 
   mockStore.nodes.push(node);
   return { studyNodeId: node._id, plan, dueItems };
+}
+
+function mockGetStudyNode(request: { studyNodeId: string }): LearningNode | null {
+  return mockStore.nodes.find((node) => node._id === request.studyNodeId && node.type === 'study') ?? null;
 }

@@ -1,20 +1,33 @@
 import type { Library, LibraryMode } from '../types/learning';
+import { callCloud } from './cloud';
 import { createMockId, getMockNow, mockStore } from './mock-store';
 
 export function listLibraries(): Promise<Library[]> {
-  return Promise.resolve([...mockStore.libraries]);
+  return callCloud('listLibraries', undefined, mockListLibraries);
 }
 
 export function getLibrary(libraryId: string): Promise<Library | null> {
-  return Promise.resolve(mockStore.libraries.find((library) => library._id === libraryId) ?? null);
+  return callCloud('getLibrary', { libraryId }, mockGetLibrary);
 }
 
 export function createLibrary(name: string, mode: LibraryMode = 'course'): Promise<Library> {
+  return callCloud('createLibrary', { name, mode }, mockCreateLibrary);
+}
+
+function mockListLibraries(): Library[] {
+  return [...mockStore.libraries];
+}
+
+function mockGetLibrary(request: { libraryId: string }): Library | null {
+  return mockStore.libraries.find((library) => library._id === request.libraryId) ?? null;
+}
+
+function mockCreateLibrary(request: { name: string; mode: LibraryMode }): Library {
   const library: Library = {
     _id: createMockId('lib'),
-    name,
+    name: request.name,
     createdAt: getMockNow(),
-    mode,
+    mode: request.mode,
     classCount: 0,
   };
 
@@ -31,5 +44,5 @@ export function createLibrary(name: string, mode: LibraryMode = 'course'): Promi
     },
   });
 
-  return Promise.resolve(library);
+  return library;
 }

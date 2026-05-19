@@ -31,7 +31,7 @@ export function advanceClass(sessionId: string): Promise<AdvanceClassResponse> {
 }
 
 export function getClassSession(sessionId: string): Promise<ClassSession | null> {
-  return Promise.resolve(mockStore.classSessions.find((session) => session._id === sessionId) ?? null);
+  return callCloud('getClassSession', { sessionId }, mockGetClassSession);
 }
 
 function mockSubmitManualClass(request: SubmitManualClassRequest): SubmitManualClassResponse {
@@ -79,6 +79,10 @@ function mockSubmitManualClass(request: SubmitManualClassRequest): SubmitManualC
   return { sessionId: session._id, nodeId };
 }
 
+function mockGetClassSession(request: { sessionId: string }): ClassSession | null {
+  return mockStore.classSessions.find((session) => session._id === request.sessionId) ?? null;
+}
+
 function mockAdvanceClass(request: AdvanceClassRequest): AdvanceClassResponse {
   const session = mockStore.classSessions.find((item) => item._id === request.sessionId);
   if (!session) {
@@ -89,36 +93,46 @@ function mockAdvanceClass(request: AdvanceClassRequest): AdvanceClassResponse {
 }
 
 function upsertClassKnowledgePoints(libraryId: string, nodeId: string, classIndex: number): string[] {
-  const existing = mockStore.knowledgePoints.find((point) => point.libraryId === libraryId);
-  const reusedPoint = existing ?? createKnowledgePoint(libraryId, nodeId, '课程主线问题', []);
-  const newPoint = createKnowledgePoint(libraryId, nodeId, `第 ${classIndex} 节课的新概念`, [reusedPoint._id]);
-  reusedPoint.relatedIds = Array.from(new Set([...reusedPoint.relatedIds, newPoint._id]));
+  const existingPoints = mockStore.knowledgePoints.filter((point) => point.libraryId === libraryId);
+  const mainPoint = existingPoints[0] ?? createKnowledgePoint(libraryId, nodeId, '课程主线问题', ['主线', '核心问题'], []);
+  const bridgePoint =
+    classIndex > 1 && existingPoints[1]
+      ? existingPoints[1]
+      : createKnowledgePoint(libraryId, nodeId, '概念如何连接课堂案例', ['案例连接'], [mainPoint._id]);
+  const newPoint = createKnowledgePoint(libraryId, nodeId, `第 ${classIndex} 节课的新概念`, ['本节新概念'], [
+    mainPoint._id,
+    bridgePoint._id,
+  ]);
+
+  mainPoint.relatedIds = Array.from(new Set([...mainPoint.relatedIds, bridgePoint._id, newPoint._id]));
+  bridgePoint.relatedIds = Array.from(new Set([...bridgePoint.relatedIds, mainPoint._id, newPoint._id]));
 
   mockStore.signals.push({
     _id: createMockId('sig'),
-    knowledgePointId: reusedPoint._id,
+    knowledgePointId: mainPoint._id,
     sourceNodeId: nodeId,
     sourceModule: 'class-record',
     type: 'mark-question',
     value: null,
     timestamp: getMockNow(),
   });
-  reusedPoint.status = 'yellow';
+  mainPoint.status = 'yellow';
 
-  return [reusedPoint._id, newPoint._id];
+  return [mainPoint._id, bridgePoint._id, newPoint._id];
 }
 
 function createKnowledgePoint(
   libraryId: string,
   nodeId: string,
   name: string,
+  aliases: string[],
   relatedIds: string[],
 ): KnowledgePoint {
   const point: KnowledgePoint = {
     _id: createMockId('kp'),
     libraryId,
     name,
-    aliases: [],
+    aliases,
     relatedIds,
     firstSeenNodeId: nodeId,
     status: 'gray',

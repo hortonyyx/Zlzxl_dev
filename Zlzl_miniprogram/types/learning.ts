@@ -74,8 +74,6 @@ export interface LearningNode {
   plan?: StudyPlan;
 }
 
-export type Node = LearningNode;
-
 export interface MailuoStation {
   nodeId: string;
   classIndex: number;

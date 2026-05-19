@@ -47,7 +47,7 @@ export const mockStore: MockStore = {
       name: '现代主义设计的社会理想',
       aliases: ['现代主义', '社会理想'],
       relatedIds: ['kp-bauhaus', 'kp-postmodern'],
-      firstSeenNodeId: 'node-demo-class-1',
+      firstSeenNodeId: 'node-demo-class-2',
       status: 'yellow',
       lastReviewedAt: now - 9 * day,
     },
@@ -154,7 +154,7 @@ export const mockStore: MockStore = {
           classIndex: 1,
           title: '现代设计的起点',
           status: 'green',
-          knowledgePointIds: ['kp-bauhaus', 'kp-modernism'],
+          knowledgePointIds: ['kp-bauhaus'],
         },
         {
           nodeId: 'node-demo-class-2',

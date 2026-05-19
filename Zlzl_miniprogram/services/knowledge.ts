@@ -1,4 +1,5 @@
 import type { KnowledgePoint, LearningStatus, MailuoStation, MasterySignal, MasterySignalType } from '../types/learning';
+import { callCloud } from './cloud';
 import { getMockNow, mockStore } from './mock-store';
 
 const REVIEW_INTERVAL_MS = 7 * 24 * 60 * 60 * 1000;
@@ -6,15 +7,11 @@ const PASSING_SIGNAL_TYPES: MasterySignalType[] = ['quiz-correct', 'flashcard-go
 const FAILING_SIGNAL_TYPES: MasterySignalType[] = ['quiz-wrong', 'flashcard-fail'];
 
 export function listKnowledgePoints(libraryId: string): Promise<KnowledgePoint[]> {
-  return Promise.resolve(mockStore.knowledgePoints.filter((point) => point.libraryId === libraryId));
+  return callCloud('listKnowledgePoints', { libraryId }, mockListKnowledgePoints);
 }
 
 export function listMasterySignals(knowledgePointId: string): Promise<MasterySignal[]> {
-  return Promise.resolve(
-    mockStore.signals
-      .filter((signal) => signal.knowledgePointId === knowledgePointId)
-      .sort((left, right) => left.timestamp - right.timestamp),
-  );
+  return callCloud('listMasterySignals', { knowledgePointId }, mockListMasterySignals);
 }
 
 export function calculateKnowledgeStatus(signals: MasterySignal[]): LearningStatus {
@@ -105,4 +102,14 @@ export function getDueKnowledgePoints(libraryId: string): KnowledgePoint[] {
 function latestTimestamp(signals: MasterySignal[], types: MasterySignalType[]): number | null {
   const timestamps = signals.filter((signal) => types.includes(signal.type)).map((signal) => signal.timestamp);
   return timestamps.length > 0 ? Math.max(...timestamps) : null;
+}
+
+function mockListKnowledgePoints(request: { libraryId: string }): KnowledgePoint[] {
+  return mockStore.knowledgePoints.filter((point) => point.libraryId === request.libraryId);
+}
+
+function mockListMasterySignals(request: { knowledgePointId: string }): MasterySignal[] {
+  return mockStore.signals
+    .filter((signal) => signal.knowledgePointId === request.knowledgePointId)
+    .sort((left, right) => left.timestamp - right.timestamp);
 }
