@@ -1,52 +1,52 @@
-# Context Reset Handoff
+# 上下文重置交接
 
-Use this before starting a fresh agent context.
+开启新上下文前使用这个模板。
 
-## Project State
+## 项目状态
 
-Summarize the current repository state in 5-10 bullets.
+用 5-10 条总结当前仓库状态。
 
-## Active Goal
+## 当前目标
 
-What are we trying to finish next?
+下一步要完成什么？
 
-## Approved Specs
+## 已批准的执行包
 
-List relevant spec files:
+列出相关文件：
 
 - `docs/specs/<feature>/requirements.md`
 - `docs/specs/<feature>/design.md`
 - `docs/specs/<feature>/tasks.md`
 
-## Completed Work
+## 已完成工作
 
-What has already been implemented?
+已经实现了什么？
 
-## Files Changed Recently
+## 最近修改的文件
 
-- path/to/file: reason
+- path/to/file：修改原因
 
-## Constraints To Preserve
+## 必须保留的约束
 
-- Native WeChat Mini Program first.
-- No Taro/uni-app before MVP validation.
-- Keep pages thin.
-- Centralize request/storage/toast wrappers.
-- Keep Windows/macOS compatibility.
+- 微信原生小程序优先。
+- MVP 验证前不要引入 Taro/uni-app。
+- 页面保持轻量。
+- 请求、storage、toast 使用集中封装。
+- 保持 Windows/macOS 兼容。
 
-## Verification So Far
+## 已完成验证
 
-Commands run:
+已运行命令：
 
 ```bash
 # command here
 ```
 
-Manual checks:
+手动检查：
 
-- WeChat DevTools:
-- Real device:
+- 微信开发者工具：
+- 真机：
 
-## Next Step
+## 下一步
 
-The next single module or task to do.
+下一个单独模块或任务。

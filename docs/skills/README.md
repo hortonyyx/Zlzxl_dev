@@ -1,38 +1,38 @@
-# Distilled Skills
+# 沉淀技能
 
-Store project-specific lessons here after each milestone.
+每个里程碑之后，把项目专属经验沉淀在这里。
 
-This folder is for reusable project knowledge that should survive context resets and model switches.
+这个目录用于保存能跨上下文、跨模型复用的项目知识。
 
-## When To Add A Skill
+## 什么时候新增技能
 
-Add or update a skill when:
+出现以下情况时，新增或更新技能：
 
-- A bug pattern repeats.
-- A prompt pattern works especially well.
-- A module establishes a stable project convention.
-- A review finds a rule that future agents should remember.
-- A workflow becomes reliable enough to reuse.
+- 某类 bug 反复出现。
+- 某个提示词模式特别有效。
+- 某个模块形成了稳定项目约定。
+- 审阅发现了未来 Agent 应该记住的规则。
+- 某个工作流已经足够可靠，值得复用。
 
-## Format
+## 格式
 
 ```md
-## Skill: Name
+## Skill: 名称
 
-When to use:
+什么时候使用：
 
-Steps:
+步骤：
 
-Pitfalls:
+坑点：
 
-Verification:
+验证：
 
-Example prompt:
+示例提示词：
 ```
 
-## Suggested Files
+## 建议文件
 
-Use one markdown file per skill when it grows beyond a short note:
+如果内容超过几行，单独建一个 markdown 文件：
 
 ```text
 docs/skills/wechat-request-wrapper.md

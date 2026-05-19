@@ -8,13 +8,15 @@
     "strictNullChecks": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["miniprogram/*"]
+      "@/*": ["Zlzl_miniprogram/*"]
     },
     "types": ["wechat-miniprogram"],
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["miniprogram/**/*.ts"],
+  "include": ["Zlzl_miniprogram/**/*.ts"],
   "exclude": ["node_modules", "miniprogram_npm", "dist"]
 }
+
+
 

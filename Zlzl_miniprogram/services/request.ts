@@ -36,7 +36,7 @@ export function request<TResponse, TData extends RequestData = WechatMiniprogram
           return;
         }
 
-        reject(new Error(`Request failed with status ${response.statusCode}`));
+        reject(new Error(`请求失败，状态码 ${response.statusCode}`));
       },
       fail(error) {
         reject(error);
@@ -44,3 +44,4 @@ export function request<TResponse, TData extends RequestData = WechatMiniprogram
     });
   });
 }
+

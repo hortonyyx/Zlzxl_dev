@@ -1,21 +1,20 @@
-# Product Brief
+# 产品简报
 
-## MVP Goal
+## MVP 目标
 
-Describe the first version of the mini program here.
+在这里描述第一版小程序要验证什么。
 
-## Target User
+## 目标用户
 
-Describe who this is for.
+描述这个产品是给谁用的。
 
-## Core User Journey
+## 核心用户路径
 
-1. User opens mini program.
-2. User completes the primary action.
-3. User sees a useful result.
+1. 用户打开小程序。
+2. 用户完成核心动作。
+3. 用户看到有价值的结果。
 
-## Non-Goals
+## 暂不做
 
-- Multi-platform product support before MVP validation.
-- Large design system before the first working flow.
-
+- MVP 验证前不做多平台产品支持。
+- 第一个可用流程完成前不做大型设计系统。

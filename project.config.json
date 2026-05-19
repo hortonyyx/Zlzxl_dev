@@ -1,5 +1,5 @@
 {
-  "description": "Zlzxl WeChat Mini Program",
+  "description": "Zlzl 微信小程序",
   "packOptions": {
     "ignore": []
   },
@@ -14,7 +14,9 @@
   "compileType": "miniprogram",
   "libVersion": "latest",
   "appid": "touristappid",
-  "projectname": "Zlzxl_dev",
-  "miniprogramRoot": "miniprogram/",
+  "projectname": "Zlzl_dev",
+  "miniprogramRoot": "Zlzl_miniprogram/",
   "condition": {}
 }
+
+

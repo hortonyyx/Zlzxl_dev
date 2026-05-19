@@ -1,47 +1,47 @@
-# AI Context Entry
+# AI 上下文入口
 
-Load this file first when starting a new model window.
+每次打开新的模型窗口，先加载这个文件。
 
-## Current Workflow
+## 当前工作流
 
-The project uses a centralized-context, plan-first, cross-review workflow.
+本项目使用“集中上下文 + 先计划 + 交叉审阅”的工作流。
 
-1. Start a fresh window.
-2. Load this entry file and the linked management docs below.
-3. Discuss requirements with GPT-5.5 or Opus until the goal and boundaries are clear.
-4. Produce a plan and split it into execution modules.
-5. Execute one module at a time in Codex, Claude Code, or another coding agent.
-6. After each module, run cross-review with the other frontier model family.
-7. After a major milestone, ask GPT-5.5 and Opus to review independently.
-8. Record decisions, review outcomes, and reusable lessons in the management docs.
-9. Start a new clean context when the current thread becomes noisy.
+1. 打开一个干净的新模型窗口。
+2. 加载本文件，以及下面列出的管理文档。
+3. 和 GPT-5.5 或 Opus 聊清楚需求、目标和边界。
+4. 产出计划，并拆成可执行模块。
+5. 在 Codex、Claude Code 或其他编码 Agent 中一次执行一个模块。
+6. 每个模块完成后，用另一个模型家族交叉审阅。
+7. 大节点完成后，让 GPT-5.5 和 Opus 分别独立评审。
+8. 把决策、评审结论和可复用经验写回管理文档。
+9. 当前对话变脏时，果断开启新上下文。
 
-## Management Docs To Load
+## 必须加载的管理文档
 
-Always load:
+始终加载：
 
-- `AGENTS.md`: shared repository rules for coding agents.
-- `CLAUDE.md`: Claude Code-specific rules.
-- `docs/ai/vibe-coding-system.md`: full workflow.
-- `docs/ai/context-map.md`: where project knowledge lives.
-- `docs/ai/agent-protocol.md`: handoff and cross-agent rules.
-- `docs/ai/model-roles.md`: model responsibilities.
-- `docs/ai/review-checklist.md`: module and milestone review checklist.
+- `AGENTS.md`：编码 Agent 通用规则。
+- `CLAUDE.md`：Claude Code 专用规则。
+- `docs/ai/vibe-coding-system.md`：完整工作流。
+- `docs/ai/context-map.md`：项目知识位置索引。
+- `docs/ai/agent-protocol.md`：跨 Agent 交接和冲突规则。
+- `docs/ai/model-roles.md`：模型分工。
+- `docs/ai/review-checklist.md`：模块和里程碑审阅清单。
 
-Load when relevant:
+按需加载：
 
-- `docs/product/brief.md`: product direction.
-- `docs/product/backlog.md`: prioritized work.
-- `docs/specs/<feature>/`: active feature plan and module tasks.
-- `docs/ai/session-notes.md`: decisions and discoveries.
-- `docs/skills/README.md`: distilled project-specific skills.
+- `docs/product/brief.md`：产品方向。
+- `docs/product/backlog.md`：优先级队列。
+- `docs/specs/<feature>/`：当前功能的执行包。
+- `docs/ai/session-notes.md`：决策和重要发现。
+- `docs/skills/README.md`：沉淀下来的项目技能。
 
-## Non-Negotiables
+## 不可破坏的约束
 
-- WeChat Mini Program MVP first.
-- Native WeChat Mini Program patterns, TypeScript, pnpm.
-- No Taro, uni-app, React, or Vue before MVP validation.
-- Implement one module at a time.
-- Cross-review before moving from one module to the next.
-- Independent dual-model review at major milestones.
-- Keep management docs centralized and easy to load into any model.
+- 微信小程序 MVP 优先。
+- 使用微信原生小程序模式、TypeScript、pnpm。
+- MVP 验证前不要引入 Taro、uni-app、React、Vue 或其他跨端框架。
+- 一次只实现一个模块。
+- 每个模块完成后先交叉审阅，再推进下一步。
+- 大节点必须让 GPT-5.5 和 Opus 分别独立评审。
+- 管理文档集中在 `docs/ai`，方便切模型时快速加载。

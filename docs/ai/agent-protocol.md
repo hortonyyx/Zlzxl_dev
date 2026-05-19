@@ -1,73 +1,73 @@
-# Cross-Agent Protocol
+# 跨 Agent 协作协议
 
-This project is designed for high-intensity AI-assisted development with Codex, Claude Code, GPT-5.5, Opus, and backup/utility models.
+本项目用于 Codex、Claude Code、GPT-5.5、Opus 以及备用/跑腿模型之间的高强度 AI 协作。
 
-## Operating Model
+## 协作模型
 
-- Human owns product direction and acceptance.
-- GPT-5.5 and Opus are primary planning and senior review partners.
-- Codex and Claude Code are primary implementation agents.
-- Utility models may summarize, search, or collect logs, but they do not define architecture alone.
-- Agents should treat each other as collaborators, not sources of truth.
+- 人负责产品方向和最终验收。
+- GPT-5.5 和 Opus 主要负责规划、难点判断和高级审阅。
+- Codex 和 Claude Code 主要负责编码实现。
+- 跑腿模型可以总结、搜索、收集日志，但不要单独决定架构。
+- Agent 之间是协作者，不是绝对真理来源。
 
-## New Window Startup
+## 新窗口启动
 
-When starting a new model window:
+启动新模型窗口时：
 
-1. Load `docs/ai/START_HERE.md`.
-2. Load the active execution package in `docs/specs/<feature>/` if one exists.
-3. Load only the code files relevant to the current module.
-4. Ask the model to restate the goal, constraints, and next action before editing.
+1. 加载 `docs/ai/START_HERE.md`。
+2. 如有当前功能，加载 `docs/specs/<feature>/` 下的执行包。
+3. 只加载当前模块相关的代码文件。
+4. 要求模型先复述目标、约束和下一步，再开始编辑。
 
-## Handoff Format
+## 交接格式
 
-When handing work from one agent to another, include:
+从一个 Agent 交给另一个 Agent 时，使用：
 
 ```md
-## Goal
+## 目标
 
-What should change?
+要改什么？
 
-## Current State
+## 当前状态
 
-What has already been changed or discovered?
+已经改了什么，发现了什么？
 
-## Active Module
+## 当前模块
 
-Which `tasks.md` item is in progress?
+正在执行 `tasks.md` 里的哪一项？
 
-## Files In Scope
+## 涉及文件
 
 - path/to/file
 
-## Constraints
+## 约束
 
-- Important rules or risks.
+- 重要规则或风险。
 
-## Verification
+## 验证
 
-- What was run?
-- What still needs manual testing?
+- 跑过什么？
+- 还需要手动测什么？
 
-## Review Request
+## 审阅请求
 
-What should the next model focus on?
+下一个模型重点看什么？
 ```
 
-## Conflict Rules
+## 冲突规则
 
-- Never overwrite work without reading it first.
-- If two approaches conflict, keep the smaller working approach unless the user chooses otherwise.
-- Architectural changes must be noted in `docs/ai/session-notes.md`.
-- Large rewrites should be split into modules.
-- A review finding is not automatically accepted; reconcile it against project goals and current code.
+- 没读当前文件内容前，不要覆盖文件。
+- 两种方案冲突时，默认保留更小且可工作的方案，除非用户另有选择。
+- 架构变化必须记录到 `docs/ai/session-notes.md`。
+- 大改动必须拆成模块。
+- 审阅意见不自动等于结论，要结合项目目标和当前代码判断。
 
-## Review Checklist
+## 审阅检查
 
-- Does this match the active execution module?
-- Does this keep pages thin?
-- Are API calls centralized?
-- Are storage and toast helpers reused?
-- Are types explicit at module boundaries?
-- Can Windows and macOS both install and run it?
-- Can WeChat DevTools still open the project?
+- 是否匹配当前执行模块？
+- 页面是否保持轻量？
+- API 调用是否集中？
+- storage 和 toast 是否复用封装？
+- 模块边界上的类型是否明确？
+- Windows 和 macOS 是否都能安装和运行？
+- 微信开发者工具是否还能打开项目？

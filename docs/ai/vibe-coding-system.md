@@ -1,34 +1,34 @@
-# Vibe Coding System
+# Vibe Coding 工作流
 
-This project uses a centralized-context, plan-first, module-by-module AI development workflow.
+本项目使用“集中上下文 + 先计划 + 分模块执行”的 AI 开发流程。
 
-## Core Idea
+## 核心思想
 
-Do not start from code. Start from intent, constraints, and an executable plan.
+不要从代码开始。先明确意图、约束和可执行计划。
 
-The default flow is:
+默认流程：
 
-1. Open a new model window with a clean context.
-2. Load `docs/ai/START_HERE.md` and the management docs it links.
-3. Clarify requirements with GPT-5.5 or Opus.
-4. Turn the discussion into a plan with clear boundaries.
-5. Split the plan into execution modules.
-6. Execute one module at a time with Codex, Claude Code, or another coding agent.
-7. After each module, run cross-review using the other frontier model family.
-8. Run available checks and WeChat DevTools validation before continuing.
-9. After each major milestone, get independent reviews from GPT-5.5 and Opus.
-10. Distill useful decisions into `docs/ai/session-notes.md`, `docs/specs`, or `docs/skills`.
-11. Reset context when the conversation becomes noisy.
+1. 打开干净的新模型窗口。
+2. 加载 `docs/ai/START_HERE.md` 以及它链接的管理文档。
+3. 用 GPT-5.5 或 Opus 梳理需求。
+4. 把讨论结果整理成有明确边界的计划。
+5. 把计划拆成可执行模块。
+6. 用 Codex、Claude Code 或其他编码 Agent 一次执行一个模块。
+7. 每个模块完成后，用另一个模型家族做交叉审阅。
+8. 继续前先跑可用检查，并在微信开发者工具中验证。
+9. 大节点完成后，让 GPT-5.5 和 Opus 分别独立评审。
+10. 把有用决策沉淀到 `docs/ai/session-notes.md`、`docs/specs` 或 `docs/skills`。
+11. 对话变脏时重置上下文。
 
-## Execution Package
+## 执行包
 
-Every non-trivial feature should have a small execution package:
+非平凡功能都应该有一个小型执行包：
 
-- `requirements.md`: user goal, scope, non-goals, acceptance criteria.
-- `design.md`: architecture, data flow, UI states, API contracts, risks.
-- `tasks.md`: ordered implementation modules with verification gates.
+- `requirements.md`：用户目标、范围、不做什么、验收标准。
+- `design.md`：架构、数据流、UI 状态、API 契约、风险。
+- `tasks.md`：按顺序排列的实现模块和验证闸门。
 
-Recommended location:
+推荐位置：
 
 ```text
 docs/specs/<feature-name>/requirements.md
@@ -36,37 +36,36 @@ docs/specs/<feature-name>/design.md
 docs/specs/<feature-name>/tasks.md
 ```
 
-The package can be written by GPT-5.5, Opus, Codex, Claude Code, or manually.
+执行包可以由 GPT-5.5、Opus、Codex、Claude Code 或你手动整理。
 
-## Module Gate
+## 模块完成闸门
 
-A module is complete only when:
+一个模块只有满足以下条件才算完成：
 
-- The targeted behavior works.
-- The implementation stays inside the planned scope.
-- TypeScript/lint/build checks pass when available.
-- WeChat DevTools checks are listed.
-- Manual simulator or real-device checks are listed when relevant.
-- A cross-review agent has checked the diff for bugs, regressions, and scope creep.
-- Important decisions are recorded in `docs/ai/session-notes.md`.
+- 目标行为可用。
+- 实现没有超出计划范围。
+- 如可用，TypeScript、lint 或 build 检查通过。
+- 微信开发者工具检查项已列出。
+- 相关时列出模拟器或真机检查项。
+- 交叉审阅 Agent 已检查 bug、回归风险和范围漂移。
+- 重要决策已记录到 `docs/ai/session-notes.md`。
 
-## Cross-Review Rule
+## 交叉审阅规则
 
-Use model diversity deliberately:
+刻意利用模型差异：
 
-- If Claude/Opus-family model implemented it, ask Codex/GPT-5.5-family model to review.
-- If Codex/GPT-family model implemented it, ask Claude/Opus-family model to review.
-- For major milestones, ask GPT-5.5 and Opus to review independently before reconciling their findings.
+- Claude/Opus 家族模型实现的内容，交给 Codex/GPT-5.5 家族模型审阅。
+- Codex/GPT 家族模型实现的内容，交给 Claude/Opus 家族模型审阅。
+- 大节点让 GPT-5.5 和 Opus 分别独立审阅，再汇总判断。
 
-## Context Reset Rule
+## 上下文重置规则
 
-Reset context when:
+以下情况建议重置上下文：
 
-- The agent starts forgetting constraints.
-- The chat is mostly historical noise.
-- A major module is complete.
-- A bug hunt has changed direction multiple times.
-- You are switching from planning to execution, or from execution to review.
+- Agent 开始忘记约束。
+- 聊天历史已经主要是噪音。
+- 一个大模块已经完成。
+- Bug 排查多次转向。
+- 从规划切到执行，或从执行切到审阅。
 
-Before reset, produce a compact handoff using `docs/ai/context-reset.md`.
-
+重置前，用 `docs/ai/context-reset.md` 产出简洁交接摘要。

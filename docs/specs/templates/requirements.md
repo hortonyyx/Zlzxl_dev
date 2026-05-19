@@ -1,35 +1,35 @@
-# Requirements
+# 需求
 
-## Goal
+## 目标
 
-What should this feature accomplish?
+这个功能要达成什么？
 
-## Users
+## 用户
 
-Who uses it?
+谁会使用它？
 
-## User Stories
+## 用户故事
 
-- As a user, I want to ... so that ...
+- 作为用户，我希望……以便……
 
-## Scope
+## 范围
 
-In scope:
-
-- 
-
-Out of scope:
+本次包含：
 
 - 
 
-## Acceptance Criteria
+本次不包含：
+
+- 
+
+## 验收标准
 
 - [ ] 
 
-## Edge Cases
+## 边界场景
 
 - 
 
-## Open Questions
+## 待确认问题
 
 - 

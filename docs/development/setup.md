@@ -1,42 +1,38 @@
-# Development Setup
+# 开发环境配置
 
-## Required Tools
+## 必备工具
 
-Install the same core tools on Windows and macOS:
+Windows 和 macOS 都安装同一套核心工具：
 
-- WeChat DevTools
+- 微信开发者工具
 - Git
 - Node.js 24 LTS
 - pnpm 9.15.0
-- VS Code, Cursor, Codex, or Claude Code
+- VS Code、Cursor、Codex 或 Claude Code
 
-## Node Version
+## Node 版本
 
-The project uses `.node-version`:
+项目使用 `.node-version`：
 
 ```text
 24
 ```
 
-Recommended version managers:
+推荐版本管理工具：
 
-- Windows: fnm or nvm-windows
-- macOS: fnm or nvm
+- Windows：fnm 或 nvm-windows
+- macOS：fnm 或 nvm
 
-## Install Dependencies
+## 安装依赖
 
 ```bash
-corepack enable
-corepack prepare pnpm@9.15.0 --activate
-pnpm install
+corepack pnpm install
 ```
 
-## Open In WeChat DevTools
+## 用微信开发者工具打开
 
-Open the repository root in WeChat DevTools.
+用微信开发者工具打开仓库根目录。
 
-Use TypeScript if DevTools asks for a language choice.
+如果工具询问开发语言，选择 TypeScript。
 
-Do not commit `project.private.config.json`.
-
-
+不要提交 `project.private.config.json`。

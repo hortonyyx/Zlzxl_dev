@@ -1,19 +1,22 @@
-# Session Notes
+# 决策记录
 
-Record important AI-assisted development decisions here.
+这里记录 AI 辅助开发过程中的重要决策、发现和经验。
 
 ## 2026-05-19
 
-- Project initialized for native WeChat Mini Program MVP development.
-- Chosen priority: WeChat MVP first; revisit cross-platform product frameworks after validation.
-- Added cross-agent workflow docs for Codex and Claude Code.
+- 项目初始化为微信原生小程序 MVP。
+- 当前优先级：先验证微信小程序 MVP，跨平台产品框架等验证后再评估。
+- 增加 Codex 和 Claude Code 的跨 Agent 协作文档。
 
+## 2026-05-19 工作流更新
 
-## 2026-05-19 Workflow Update
+- 默认工作流改为集中上下文入口：`docs/ai/START_HERE.md`。
+- 规划由 GPT-5.5 或 Opus 对话完成，再拆成执行模块。
+- Codex 和 Claude Code 可分别执行模块，每个模块结束后由另一个模型家族交叉审阅。
+- 大节点完成后，需要 GPT-5.5 和 Opus 分别独立评审。
+- 管理文档集中在 `docs/ai`，方便切换模型。
 
-- Removed dependency on Kiro-style planning as the default workflow.
-- Adopted a centralized new-window context flow using `docs/ai/START_HERE.md`.
-- Planning is handled through GPT-5.5 or Opus conversations, then split into execution modules.
-- Codex and Claude Code can execute modules independently, with cross-review by the other model family after each module.
-- Major milestones require independent GPT-5.5 and Opus reviews before continuing.
-- Management docs are centralized under `docs/ai` for easier model switching.
+## 2026-05-19 命名和语言约定
+
+- 面向用户和模型交互的管理文档统一使用中文。
+- 小程序源码目录改为 `Zlzl_miniprogram`，避免通用目录名在多项目协作中混淆。

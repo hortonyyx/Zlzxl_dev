@@ -1,21 +1,21 @@
-# Backlog
+# 需求池
 
-## Now
+## 现在
 
-- Define MVP goal.
-- Create first page flow.
-- Add request wrapper.
-- Add basic storage wrapper.
+- 明确 MVP 目标。
+- 创建第一个页面流程。
+- 补充请求封装。
+- 补充基础缓存封装。
 
-## Next
+## 下一步
 
-- Add auth/session handling.
-- Add real API integration.
-- Add loading and error states.
-- Test on real device.
+- 增加登录/会话处理。
+- 接入真实 API。
+- 增加 loading 和 error 状态。
+- 真机测试。
 
-## Later
+## 之后
 
-- Evaluate cross-platform product needs.
-- Decide whether native WeChat remains enough or whether Taro/uni-app is justified.
+- 评估是否需要跨平台产品支持。
+- 判断微信原生是否足够，或是否需要 Taro/uni-app。
 

@@ -1,29 +1,29 @@
-# Development Workflow
+# 开发流程
 
-## Daily Flow
+## 日常流程
 
-1. Pull latest code.
-2. Install dependencies if lockfile changed.
-3. Open a fresh model window for planning or execution.
-4. Load `docs/ai/START_HERE.md` and the active execution package.
-5. Implement one module or one small fix.
-6. Run available checks.
-7. Open WeChat DevTools and test the changed flow.
-8. Cross-review with the other model family.
-9. Commit a small working change.
+1. 拉取最新代码。
+2. 如果 lockfile 变了，安装依赖。
+3. 为规划或执行打开新的模型窗口。
+4. 加载 `docs/ai/START_HERE.md` 和当前执行包。
+5. 实现一个模块或一个小修复。
+6. 运行可用检查。
+7. 打开微信开发者工具测试改动流程。
+8. 用另一个模型家族交叉审阅。
+9. 提交一个小而可工作的改动。
 
-## Planning Flow
+## 规划流程
 
-Use GPT-5.5 or Opus to clarify:
+用 GPT-5.5 或 Opus 明确：
 
-- Goal.
-- Scope.
-- Non-goals.
-- Risks.
-- Acceptance criteria.
-- Execution modules.
+- 目标。
+- 范围。
+- 不做什么。
+- 风险。
+- 验收标准。
+- 执行模块。
 
-Save the result under:
+把结果保存到：
 
 ```text
 docs/specs/<feature>/requirements.md
@@ -31,42 +31,43 @@ docs/specs/<feature>/design.md
 docs/specs/<feature>/tasks.md
 ```
 
-## Execution Flow
+## 执行流程
 
-Ask Codex or Claude Code to implement one module at a time.
+让 Codex 或 Claude Code 一次实现一个模块。
 
-Good prompt shape:
+推荐提示词结构：
 
 ```text
-Load docs/ai/START_HERE.md and docs/specs/<feature>/tasks.md.
-Implement only Phase 1 / Task 2. Keep pages thin. Do not touch unrelated files.
-After the change, run the narrowest check and summarize files changed.
+加载 docs/ai/START_HERE.md 和 docs/specs/<feature>/tasks.md。
+只实现 阶段 1 / 任务 2。保持页面轻量，不要改无关文件。
+改完后运行最窄检查，并总结修改文件。
 ```
 
-## Review Flow
+## 审阅流程
 
-After each module:
+每个模块完成后：
 
-- If Claude implemented it, ask Codex/GPT-family model to review.
-- If Codex implemented it, ask Claude/Opus-family model to review.
+- 如果 Claude 实现，让 Codex/GPT 家族模型审阅。
+- 如果 Codex 实现，让 Claude/Opus 家族模型审阅。
 
-After a major milestone:
+大节点完成后：
 
-- Ask GPT-5.5 for an independent review.
-- Ask Opus for an independent review.
-- Reconcile findings manually before continuing.
+- 让 GPT-5.5 独立审阅。
+- 让 Opus 独立审阅。
+- 手动汇总两边结论后再继续。
 
-## Commit Style
+## 提交格式
 
-Use simple conventional commits:
+使用简单 conventional commits：
 
 - `feat: add login flow`
 - `fix: handle expired session`
 - `chore: update project docs`
 - `docs: clarify setup`
 
-## Context Hygiene
+## 上下文卫生
 
-Reset context when the model starts forgetting constraints, the chat becomes too long, or you switch from planning to execution or review.
+当模型开始忘记约束、对话太长，或你要从规划切到执行/审阅时，重置上下文。
 
-Use `docs/ai/context-reset.md` before the reset.
+重置前使用 `docs/ai/context-reset.md`。
+

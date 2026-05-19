@@ -1,82 +1,82 @@
-# Model Roles
+# 模型分工
 
-Use models according to task type, review independence, and token cost.
+按照任务类型、审阅独立性和 token 成本来分配模型。
 
-## Planning And Requirements
+## 规划和需求
 
-Primary:
+主力：
 
 - GPT-5.5
 - Opus
 
-Use for:
+适合：
 
-- Requirement clarification.
-- Product tradeoffs.
-- Architecture decisions.
-- Module decomposition.
-- Plan critique before implementation.
-- Difficult bug diagnosis.
+- 需求澄清。
+- 产品取舍。
+- 架构判断。
+- 模块拆分。
+- 实现前计划审阅。
+- 困难 bug 诊断。
 
-## Main Implementation
+## 主要实现
 
-Primary:
+主力：
 
 - Codex
 - Claude Code
 
-Use for:
+适合：
 
-- Feature implementation.
-- Refactors with clear scope.
-- Test creation.
-- Documentation updates tied to implementation.
+- 功能实现。
+- 边界清晰的重构。
+- 测试补充。
+- 和实现相关的文档更新。
 
-## Cross-Review
+## 交叉审阅
 
-After each module:
+每个模块完成后：
 
-- Claude/Opus-family implementation should be reviewed by GPT-5.5/Codex-family model.
-- GPT-5.5/Codex-family implementation should be reviewed by Claude/Opus-family model.
+- Claude/Opus 家族实现的内容，由 GPT-5.5/Codex 家族审阅。
+- GPT-5.5/Codex 家族实现的内容，由 Claude/Opus 家族审阅。
 
-Review priority:
+审阅优先级：
 
-1. Bugs and regressions.
-2. Missing edge cases.
-3. Broken architecture boundaries.
-4. Missing verification.
-5. Overbuilt or speculative code.
+1. bug 和回归风险。
+2. 缺失边界场景。
+3. 架构边界被破坏。
+4. 缺少验证。
+5. 过度设计或投机性代码。
 
-## Milestone Review
+## 里程碑审阅
 
-After a major node, get independent reviews from both:
+大节点完成后，分别找下面两个模型独立审阅：
 
 - GPT-5.5
 - Opus
 
-Do not ask one model to merely react to the other's review first. Independent reviews catch more issues.
+不要先把一个模型的审阅结果给另一个模型看。独立审阅更容易抓出不同问题。
 
-## Backup And Utility Models
+## 备用和跑腿模型
 
-Backup implementation:
+备用实现：
 
 - GLM 5.1
 
-Use when:
+适合：
 
-- The task is clear and bounded.
-- Primary token budget is exhausted.
-- Output can be checked quickly.
+- 任务清晰且边界明确。
+- 主力 token 不够。
+- 输出可以快速检查。
 
-Runner / research / summarizer:
+跑腿、搜索、总结：
 
 - Gemini Flash 3.1
-- Haiku-class models
+- Haiku 类模型
 
-Use for:
+适合：
 
-- Searching files.
-- Summarizing docs.
-- Collecting logs.
-- Dependency and environment checks.
-- Drafting non-authoritative notes.
+- 搜索文件。
+- 总结文档。
+- 收集日志。
+- 检查依赖和环境。
+- 起草非权威笔记。

@@ -1,21 +1,22 @@
-# Tasks
+# 任务
 
-## Phase 1
+## 阶段 1
 
-- [ ] Task 1
-  - Files:
-  - Verification:
+- [ ] 任务 1
+  - 文件：
+  - 验证：
 
-## Phase 2
+## 阶段 2
 
-- [ ] Task 2
-  - Files:
-  - Verification:
+- [ ] 任务 2
+  - 文件：
+  - 验证：
 
-## Review Gate
+## 审阅闸门
 
-- [ ] Run automated checks.
-- [ ] Test in WeChat DevTools.
-- [ ] List real-device checks.
-- [ ] Run separate review agent.
-- [ ] Update `docs/ai/session-notes.md` if decisions changed.
+- [ ] 运行自动检查。
+- [ ] 在微信开发者工具中测试。
+- [ ] 列出真机检查项。
+- [ ] 运行独立审阅 Agent。
+- [ ] 如决策变化，更新 `docs/ai/session-notes.md`。
+

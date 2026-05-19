@@ -1,69 +1,70 @@
-# Design
+# 设计
 
-## Overview
+## 概览
 
-Describe the solution at a high level.
+高层描述解决方案。
 
-## User Flow
+## 用户流程
 
 1. 
 
-## Architecture
+## 架构
 
-Pages:
-
-- 
-
-Components:
+页面：
 
 - 
 
-Services:
+组件：
 
 - 
 
-Stores:
+服务：
 
 - 
 
-Utils:
+状态：
 
 - 
 
-## Data Model
+工具：
+
+- 
+
+## 数据模型
 
 ```ts
 interface Example {}
 ```
 
-## API Contract
+## API 契约
 
-Request:
+请求：
 
 ```ts
 interface ExampleRequest {}
 ```
 
-Response:
+响应：
 
 ```ts
 interface ExampleResponse {}
 ```
 
-## UI States
+## UI 状态
 
-- Loading
-- Empty
-- Error
-- Success
+- 加载中
+- 空状态
+- 错误状态
+- 成功状态
 
-## Risks
+## 风险
 
 - 
 
-## Test Plan
+## 测试计划
 
-- Unit:
-- Integration:
-- WeChat DevTools:
-- Real device:
+- 单元测试：
+- 集成测试：
+- 微信开发者工具：
+- 真机：
+
