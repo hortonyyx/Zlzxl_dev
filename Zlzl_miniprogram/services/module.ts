@@ -9,6 +9,8 @@ interface GradeModuleRequest {
   answers: Array<{ knowledgePointId: string; pass: boolean }>;
 }
 
+const moduleResultsByNode = new Map<string, ModuleResult[]>();
+
 export function getQuizQuestions(knowledgePointIds: string[]): Promise<QuizQuestion[]> {
   return callCloud('getQuizQuestions', { knowledgePointIds }, mockGetQuizQuestions);
 }
@@ -25,11 +27,15 @@ export function gradeModule(
   return callCloud('gradeModule', { studyNodeId, moduleType, answers }, mockGradeModule);
 }
 
+export function getModuleResults(studyNodeId: string): Promise<ModuleResult[]> {
+  return Promise.resolve(moduleResultsByNode.get(studyNodeId) ?? []);
+}
+
 function mockGradeModule(request: GradeModuleRequest): ModuleResult[] {
   const node = mockStore.nodes.find((item) => item._id === request.studyNodeId);
   const now = getMockNow();
 
-  return request.answers.map((answer) => {
+  const results = request.answers.map((answer) => {
     const point = mockStore.knowledgePoints.find((item) => item._id === answer.knowledgePointId);
     const previousStatus = point?.status ?? 'gray';
     mockStore.signals.push({
@@ -62,6 +68,9 @@ function mockGradeModule(request: GradeModuleRequest): ModuleResult[] {
       comment: answer.pass ? '已回写为通过信号。' : '已回写为薄弱信号,今日学习会继续优先安排。',
     };
   });
+
+  moduleResultsByNode.set(request.studyNodeId, results);
+  return results;
 }
 
 function mockGetQuizQuestions(request: { knowledgePointIds: string[] }): QuizQuestion[] {

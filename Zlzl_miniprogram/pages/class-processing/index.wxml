@@ -1,4 +1,8 @@
 <view class="page">
   <text class="title">{{title}}</text>
-  <text class="description">{{description}}</text>
+  <view class="panel">
+    <text class="description">转写 → 总结 → 知识点提取 → 脉络重写</text>
+    <text class="status">当前状态: {{status}}</text>
+  </view>
+  <button wx:if="{{done}}" class="primary-action" bindtap="openSummary">查看课堂总结</button>
 </view>

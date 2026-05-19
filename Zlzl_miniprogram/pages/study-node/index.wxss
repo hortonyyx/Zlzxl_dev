@@ -5,6 +5,7 @@
   display: flex;
   flex-direction: column;
   gap: 16rpx;
+  background: #f6f7f9;
 }
 
 .title {
@@ -14,7 +15,37 @@
 }
 
 .description {
+  display: block;
   color: #4b5563;
   font-size: 28rpx;
   line-height: 1.5;
+}
+
+.panel {
+  padding: 24rpx;
+  border-radius: 12rpx;
+  background: #ffffff;
+}
+
+.panel-title {
+  display: block;
+  margin-bottom: 12rpx;
+  font-size: 30rpx;
+  font-weight: 600;
+}
+
+.meta {
+  display: block;
+  margin-top: 12rpx;
+  color: #111827;
+  font-size: 26rpx;
+}
+
+.primary-action {
+  margin-top: 20rpx;
+  border-radius: 12rpx;
+  background: #111827;
+  color: #ffffff;
+  font-size: 28rpx;
+  line-height: 80rpx;
 }

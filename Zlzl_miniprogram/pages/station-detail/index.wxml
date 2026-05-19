@@ -1,4 +1,18 @@
 <view class="page">
-  <text class="title">{{title}}</text>
-  <text class="description">{{description}}</text>
+  <view wx:if="{{loading}}" class="description">加载中...</view>
+  <block wx:else>
+    <text class="title">第 {{node.classIndex}} 节课</text>
+    <text class="description">{{node.summary.full}}</text>
+    <view class="panel">
+      <text class="panel-title">知识提炼</text>
+      <text wx:for="{{node.summary.points}}" wx:key="*this" class="item">· {{item}}</text>
+    </view>
+    <view class="panel">
+      <text class="panel-title">你的状态</text>
+      <view wx:for="{{points}}" wx:key="_id" class="point">
+        <text>{{item.name}}</text>
+        <text class="{{item.status}}">{{item.status}}</text>
+      </view>
+    </view>
+  </block>
 </view>

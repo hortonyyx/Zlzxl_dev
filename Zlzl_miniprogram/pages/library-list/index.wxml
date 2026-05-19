@@ -1,4 +1,30 @@
 <view class="page">
-  <text class="title">{{title}}</text>
-  <text class="description">{{description}}</text>
+  <view class="header">
+    <text class="title">{{title}}</text>
+    <button class="icon-action" bindtap="goCreate">+</button>
+  </view>
+
+  <view wx:if="{{loading}}" class="state">加载中...</view>
+
+  <view wx:else>
+    <view
+      wx:for="{{libraries}}"
+      wx:key="_id"
+      class="library-card"
+      data-library-id="{{item._id}}"
+      bindtap="openLibrary"
+    >
+      <view class="row">
+        <text class="card-title">{{item.name}}</text>
+        <text wx:if="{{item.isDemo}}" class="tag">Demo</text>
+      </view>
+      <text class="meta">{{item.classCount}} 节课 · {{item.stationCount}} 个脉络站点</text>
+      <view class="bar">
+        <view class="bar-green"></view>
+        <view class="bar-yellow"></view>
+        <view class="bar-gray"></view>
+      </view>
+      <text class="meta">{{item.statusText}}</text>
+    </view>
+  </view>
 </view>

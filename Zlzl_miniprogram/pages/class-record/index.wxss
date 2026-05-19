@@ -5,6 +5,7 @@
   display: flex;
   flex-direction: column;
   gap: 16rpx;
+  background: #f6f7f9;
 }
 
 .title {
@@ -17,4 +18,23 @@
   color: #4b5563;
   font-size: 28rpx;
   line-height: 1.5;
+}
+
+.textarea {
+  width: 100%;
+  min-height: 360rpx;
+  padding: 24rpx;
+  box-sizing: border-box;
+  border-radius: 12rpx;
+  background: #ffffff;
+  font-size: 28rpx;
+  line-height: 1.6;
+}
+
+.primary-action {
+  border-radius: 12rpx;
+  background: #111827;
+  color: #ffffff;
+  font-size: 30rpx;
+  line-height: 88rpx;
 }

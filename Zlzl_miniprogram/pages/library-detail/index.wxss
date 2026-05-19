@@ -2,9 +2,7 @@
   min-height: 100vh;
   padding: 48rpx 32rpx;
   box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  gap: 16rpx;
+  background: #f6f7f9;
 }
 
 .title {
@@ -14,7 +12,80 @@
 }
 
 .description {
+  display: block;
+  margin-top: 8rpx;
   color: #4b5563;
   font-size: 28rpx;
   line-height: 1.5;
+}
+
+.state {
+  color: #4b5563;
+  font-size: 28rpx;
+}
+
+.panel {
+  margin-top: 24rpx;
+  padding: 28rpx;
+  border-radius: 12rpx;
+  background: #ffffff;
+}
+
+.panel-title {
+  display: block;
+  font-size: 30rpx;
+  font-weight: 600;
+}
+
+.station {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 18rpx;
+  padding: 20rpx;
+  border-left: 8rpx solid #d1d5db;
+  border-radius: 10rpx;
+  background: #f9fafb;
+}
+
+.green {
+  border-left-color: #16a34a;
+}
+
+.yellow {
+  border-left-color: #f59e0b;
+}
+
+.gray {
+  border-left-color: #9ca3af;
+}
+
+.station-title {
+  font-size: 28rpx;
+  font-weight: 600;
+}
+
+.station-status,
+.note {
+  display: block;
+  color: #6b7280;
+  font-size: 24rpx;
+}
+
+.primary-action,
+.secondary-action {
+  margin-top: 20rpx;
+  border-radius: 12rpx;
+  font-size: 28rpx;
+  line-height: 80rpx;
+}
+
+.primary-action {
+  background: #111827;
+  color: #ffffff;
+}
+
+.secondary-action {
+  background: #e5e7eb;
+  color: #111827;
 }

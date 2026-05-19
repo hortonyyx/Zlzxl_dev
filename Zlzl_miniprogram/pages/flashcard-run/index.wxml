@@ -1,4 +1,11 @@
 <view class="page">
-  <text class="title">{{title}}</text>
-  <text class="description">{{description}}</text>
+  <view wx:if="{{loading}}" class="description">加载中...</view>
+  <block wx:else>
+    <text class="title">{{title}}</text>
+    <view wx:for="{{cards}}" wx:key="_id" class="panel">
+      <text class="panel-title">{{item.front}}</text>
+      <text class="description">{{item.back}}</text>
+    </view>
+    <button class="primary-action" loading="{{submitting}}" bindtap="submitCards">全部记得</button>
+  </block>
 </view>

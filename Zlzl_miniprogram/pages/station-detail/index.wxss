@@ -5,6 +5,7 @@
   display: flex;
   flex-direction: column;
   gap: 16rpx;
+  background: #f6f7f9;
 }
 
 .title {
@@ -17,4 +18,43 @@
   color: #4b5563;
   font-size: 28rpx;
   line-height: 1.5;
+}
+
+.panel {
+  margin-top: 20rpx;
+  padding: 24rpx;
+  border-radius: 12rpx;
+  background: #ffffff;
+}
+
+.panel-title {
+  display: block;
+  font-size: 30rpx;
+  font-weight: 600;
+}
+
+.item {
+  display: block;
+  margin-top: 12rpx;
+  color: #374151;
+  font-size: 26rpx;
+}
+
+.point {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 14rpx;
+  font-size: 26rpx;
+}
+
+.green {
+  color: #16a34a;
+}
+
+.yellow {
+  color: #d97706;
+}
+
+.gray {
+  color: #6b7280;
 }

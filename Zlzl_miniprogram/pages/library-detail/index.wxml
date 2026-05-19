@@ -1,4 +1,41 @@
 <view class="page">
-  <text class="title">{{title}}</text>
-  <text class="description">{{description}}</text>
+  <view wx:if="{{loading}}" class="state">加载中...</view>
+  <block wx:else>
+    <text class="title">{{library.name || title}}</text>
+    <text class="description">{{library.classCount}} 节课 · {{points.length}} 个知识点</text>
+
+    <view class="panel">
+      <text class="panel-title">今日学习</text>
+      <text class="description">按黄色知识点和到期项生成学习节点</text>
+      <button class="primary-action" bindtap="goStudyNode">开始今日学习</button>
+    </view>
+
+    <view wx:if="{{mailuo.stations.length === 0}}" class="panel empty">
+      <text class="panel-title">脉络会长大</text>
+      <text class="description">输入第一节课后,这里会出现第一站、本次更新和学伴便签。</text>
+      <button class="primary-action" bindtap="goClassRecord">手动输入课堂内容</button>
+    </view>
+
+    <view wx:else class="panel">
+      <text class="panel-title">本次更新</text>
+      <text class="description">{{mailuo.latestUpdateNote}}</text>
+      <view
+        wx:for="{{mailuo.stations}}"
+        wx:key="nodeId"
+        class="station {{item.status}}"
+        data-node-id="{{item.nodeId}}"
+        bindtap="openStation"
+      >
+        <text class="station-title">{{item.classIndex}}. {{item.title}}</text>
+        <text class="station-status">{{item.status}}</text>
+      </view>
+      <button class="secondary-action" bindtap="goClassRecord">继续输入新课</button>
+    </view>
+
+    <view class="panel">
+      <text class="panel-title">学伴便签</text>
+      <text wx:for="{{mailuo.stickyNotes.unresolved}}" wx:key="*this" class="note">未解决: {{item}}</text>
+      <text wx:for="{{mailuo.stickyNotes.observations}}" wx:key="*this" class="note">观察: {{item}}</text>
+    </view>
+  </block>
 </view>

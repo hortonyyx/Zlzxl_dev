@@ -1,4 +1,6 @@
 <view class="page">
   <text class="title">{{title}}</text>
-  <text class="description">{{description}}</text>
+  <text class="description">阶段 2 仍用文本模拟课堂输入,不接真录音。</text>
+  <textarea class="textarea" value="{{content}}" bindinput="onContentInput" maxlength="-1" />
+  <button class="primary-action" loading="{{submitting}}" bindtap="submitClass">提交并生成总结</button>
 </view>

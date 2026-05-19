@@ -12,6 +12,7 @@ export type CloudFunctionName =
   | 'advanceClass'
   | 'planStudy'
   | 'getStudyNode'
+  | 'getLearningNode'
   | 'getQuizQuestions'
   | 'getFlashcards'
   | 'gradeModule';
