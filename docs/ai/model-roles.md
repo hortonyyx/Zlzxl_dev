@@ -1,26 +1,29 @@
 # Model Roles
 
-Use models according to task cost and difficulty.
+Use models according to task type, review independence, and token cost.
 
-## Planning
+## Planning And Requirements
 
 Primary:
 
-- Opus 4.6
+- GPT-5.5
+- Opus
 
 Use for:
 
 - Requirement clarification.
 - Product tradeoffs.
 - Architecture decisions.
+- Module decomposition.
+- Plan critique before implementation.
 - Difficult bug diagnosis.
-- Spec review.
 
 ## Main Implementation
 
 Primary:
 
-- Sonnet 4.6
+- Codex
+- Claude Code
 
 Use for:
 
@@ -29,31 +32,12 @@ Use for:
 - Test creation.
 - Documentation updates tied to implementation.
 
-## Backup Implementation
+## Cross-Review
 
-Backup:
+After each module:
 
-- GLM 5.1
-
-Use when:
-
-- Primary token budget is exhausted.
-- The task is clear and bounded.
-- You can verify the output quickly.
-
-## Runner / Research / Summarizer
-
-Use smaller or cheaper models such as Gemini Flash 3.1 or Haiku 4.5 for:
-
-- Searching files.
-- Summarizing docs.
-- Installing dependencies.
-- Collecting logs.
-- Drafting review notes.
-
-## Review Agent
-
-Use a separate agent for review after each module.
+- Claude/Opus-family implementation should be reviewed by GPT-5.5/Codex-family model.
+- GPT-5.5/Codex-family implementation should be reviewed by Claude/Opus-family model.
 
 Review priority:
 
@@ -62,3 +46,37 @@ Review priority:
 3. Broken architecture boundaries.
 4. Missing verification.
 5. Overbuilt or speculative code.
+
+## Milestone Review
+
+After a major node, get independent reviews from both:
+
+- GPT-5.5
+- Opus
+
+Do not ask one model to merely react to the other's review first. Independent reviews catch more issues.
+
+## Backup And Utility Models
+
+Backup implementation:
+
+- GLM 5.1
+
+Use when:
+
+- The task is clear and bounded.
+- Primary token budget is exhausted.
+- Output can be checked quickly.
+
+Runner / research / summarizer:
+
+- Gemini Flash 3.1
+- Haiku-class models
+
+Use for:
+
+- Searching files.
+- Summarizing docs.
+- Collecting logs.
+- Dependency and environment checks.
+- Drafting non-authoritative notes.

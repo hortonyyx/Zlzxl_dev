@@ -1,8 +1,8 @@
-# Spec Workflow
+# Execution Package Workflow
 
-This folder stores Kiro-style spec packages.
+This folder stores feature-level planning packages for plan-first development.
 
-Each feature should have:
+Each non-trivial feature should have:
 
 ```text
 docs/specs/<feature-name>/requirements.md
@@ -14,10 +14,21 @@ Use the templates in `docs/specs/templates`.
 
 ## Recommended Flow
 
-1. Use Opus 4.6 to clarify intent.
-2. Use Kiro Spec mode to draft the three files.
-3. Human reviews and revises the files.
-4. Coding agent implements one task group at a time.
-5. Run tests/checks before the next task group.
-6. Run a separate review agent.
-7. Record decisions in `docs/ai/session-notes.md`.
+1. Use GPT-5.5 or Opus to clarify intent.
+2. Produce a concise plan and split it into modules.
+3. Write or update the three execution package files.
+4. Human reviews and revises the package.
+5. Codex or Claude Code implements one module at a time.
+6. Run checks and WeChat DevTools verification before the next module.
+7. Cross-review with the other frontier model family.
+8. Record decisions in `docs/ai/session-notes.md`.
+
+## Naming
+
+Use short feature names:
+
+```text
+docs/specs/login/
+docs/specs/onboarding/
+docs/specs/profile/
+```

@@ -7,20 +7,13 @@ This repository is set up for a WeChat Mini Program MVP with long-term maintenan
 1. Install WeChat DevTools.
 2. Install Git.
 3. Install Node.js 24 LTS.
-4. Enable pnpm through Corepack:
+4. Use pnpm through Corepack:
 
 ```bash
-corepack enable
-corepack prepare pnpm@9.15.0 --activate
+corepack pnpm install
 ```
 
-5. Install dependencies:
-
-```bash
-pnpm install
-```
-
-6. Open this folder in WeChat DevTools.
+5. Open this folder in WeChat DevTools.
 
 ## Development Principles
 
@@ -35,26 +28,25 @@ pnpm install
 
 ## AI Collaboration
 
-Start with:
+Start every fresh model window with:
 
+- `docs/ai/START_HERE.md`
 - `AGENTS.md` for Codex and other coding agents.
 - `CLAUDE.md` for Claude Code.
-- `docs/ai/agent-protocol.md` for cross-agent rules.
 - `docs/ai/context-map.md` for where to look before changing code.
-
-
 
 ## Vibe Coding Workflow
 
-This repository uses a spec-first AI workflow:
+This repository uses a centralized-context, plan-first AI workflow:
 
-1. Clarify requirements with a strong reasoning model.
-2. Draft Kiro-style specs in `docs/specs/<feature>`.
+1. Clarify requirements with GPT-5.5 or Opus.
+2. Turn the discussion into an execution package in `docs/specs/<feature>`.
 3. Review `requirements.md`, `design.md`, and `tasks.md` before coding.
 4. Implement one module at a time with Codex or Claude Code.
 5. Run checks and WeChat DevTools verification before continuing.
-6. Run a separate review agent after each module.
-7. Distill useful lessons into `docs/skills` or future specs.
-8. Reset context using `docs/ai/context-reset.md` when the chat becomes noisy.
+6. Cross-review each module with the other model family.
+7. Ask GPT-5.5 and Opus for independent milestone reviews.
+8. Distill useful lessons into `docs/skills` or future execution packages.
+9. Reset context using `docs/ai/context-reset.md` when the chat becomes noisy.
 
 See `docs/ai/vibe-coding-system.md` for the full system.
