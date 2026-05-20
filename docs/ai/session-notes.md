@@ -127,3 +127,16 @@
 - 已通过 `corepack pnpm run check`。仍需在微信开发者工具中手动走查两条路径：
   demo 库 → 今日学习 → 测验 / 闪卡 → 结果 → 脉络更新；新建库 → 空库 →
   手动输入课堂内容 → 总结 → 测验 → 结果。
+
+## 2026-05-20 MVP 阶段 2 GO / NO-GO 前打磨
+
+- 已处理 Opus 阶段 2 审阅 C1-C4：
+  - 测验页不再直接展示 `expectedAnswer`，改为用户输入后提交；
+  - 闪卡页改为逐张翻卡并自评“记得 / 还不稳”；
+  - 站点详情改为按当前 station 的 `knowledgePointIds` 精确展示知识点；
+  - `gradeModule` 回写信号后同步更新 `mailuo.latestUpdateNote` 和学伴便签，
+    让复习后的 delta 能在库主页被看到。
+- 顺手加了 `library-detail` 的 `mailuo` 空值守卫。仍未处理 D 类非阻塞问题：
+  固定色条、路由栈重复、node-summary 测验语义、视觉与 prototype 差距。
+- 已通过 `corepack pnpm run check`。当前仍应停在 GO / NO-GO 闸门前，下一步
+  是微信开发者工具走查和产品判断，不进入阶段 3。
