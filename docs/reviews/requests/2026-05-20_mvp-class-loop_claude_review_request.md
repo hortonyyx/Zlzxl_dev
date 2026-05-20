@@ -38,7 +38,7 @@ ASR 转写 → LLM 生成课堂输出 → 生成课后测验 →
 
 - `docs/ai/NEXT_WINDOW.md`
 - `docs/ai/session-notes.md` 末尾最近 checkpoint
-- `docs/reviews/2026-05-20_mvp-scope-deepseek_review.md`
+- `docs/reviews/results/2026-05-20_mvp-scope-deepseek_review.md`
 
 关键代码：
 
@@ -119,3 +119,4 @@ ASR 转写 → LLM 生成课堂输出 → 生成课后测验 →
 2. Open Questions：需要用户 / 产品确认的问题。
 3. Test Gaps：还缺哪些微信开发者工具或真机验证。
 4. Verdict：是否可以进入 D2。
+

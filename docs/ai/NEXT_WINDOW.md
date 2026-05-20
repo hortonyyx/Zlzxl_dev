@@ -15,8 +15,8 @@
   - 目标流程：录音(先 10 分钟) → 转写 → 课堂输出(总结等) → 测验
   - 学习脉络、今日学习、长期复习、状态色、闪卡先不作为本轮验收范围
 - 当前后端形态：所有 service 仍走 mock；尚未接微信云开发、ASR、LLM
-- 当前执行阶段：阶段 A/B/C/C.5/D1 已完成；Claude 审阅已落档；
-  下一步先做 D1.1“Claude 审阅阻塞修复”，再进入 D2
+- 当前执行阶段：阶段 A/B/C/C.5/D1 已完成；D1.1 代码修复与交叉审阅已完成；
+  下一步先做 D1.1 真机验证，通过后再进入 D2.1
 
 ## 新窗口先读(按顺序)
 
@@ -72,7 +72,8 @@
 - 页面不要直接调 `wx.request`、`wx.cloud`、storage；统一走 service / utils。
 - 当前阶段不要把旧的学习脉络闭环重新加回主路径。
 - 密钥只放云函数环境变量，不进小程序代码。
-- 审阅必须落成 `docs/reviews/*.md` 并更新 `docs/reviews/README.md`；
+- 开发 Agent 完成小节点后，审阅请求包落到 `docs/reviews/requests/`。
+- 审阅结果必须落成 `docs/reviews/results/*.md` 并更新 `docs/reviews/README.md`；
   只在聊天里输出不算完成审阅。
 - 审阅完成后由审阅 Agent 单独 commit；审阅提出的修订项进入下一轮开发，
   不混进审阅 commit。
@@ -103,25 +104,37 @@
   `Zlzl_miniprogram/sitemap.json` 已补 `rules`。
 - 录音页导航标题已从“手动输入课堂”改为“上课录音”。
 - Claude 审阅请求包已准备：
-  `docs/reviews/2026-05-20_mvp-class-loop_claude_review_request.md`。
+  `docs/reviews/requests/2026-05-20_mvp-class-loop_claude_review_request.md`。
 - Claude 正式审阅已落档：
-  `docs/reviews/2026-05-20_mvp-class-loop_claude_review.md`。
-- 审阅结论：不建议在不修 P0 的情况下进入 D2；下一轮先做 D1.1。
+  `docs/reviews/results/2026-05-20_mvp-class-loop_claude_review.md`。
+- 审阅结论：不建议在不修 P0 的情况下进入 D2；D1.1 代码修复已完成，
+  仍需真机验证和交叉审阅。
+- 阶段 D1.1：修复录音到点双停竞争、录音中途错误静默、拒绝权限恢复路径、
+  录音占位与手动文本 fallback 语义混用、WXML 写死进度常量、页面模块作用域计时器。
 - `corepack pnpm run check` 已通过。
 - 用户已在微信开发者工具走完主路径，反馈没问题。
 - 用户已授权 DeepSeek 审阅；审阅归档于
-  `docs/reviews/2026-05-20_mvp-scope-deepseek_review.md`。
+  `docs/reviews/results/2026-05-20_mvp-scope-deepseek_review.md`。
+- D1.1 审阅请求包已准备：
+  `docs/reviews/requests/2026-05-20_mvp-d1-1-recorder_claude_review_request.md`。
+- D1.1 Claude 审阅已落档：
+  `docs/reviews/results/2026-05-20_mvp-d1-1-recorder_claude_review.md`。
+  结论：无代码层阻塞项，可在真机验证通过后进入 D2.1；
+  提出 1 中（M1 中断后 onStop 重入）+ 5 低优修订项。
+- D1.1 审阅后小修已完成：丢弃错误 / 中断后晚到的 `onStop`，增加同步 stop 锁，
+  `submitClass` 改为对象入参，导入别名降低同名误读风险，并补充中断不自动恢复说明。
 
 ## 下一步建议
 
-进入 `docs/specs/mvp-implementation/tasks.md` 阶段 D1.1：
+先完成 D1.1 闸门：
 
-- 修复 10 分钟到点双停丢文件。
-- 修复录音中途错误静默。
-- 修复麦克风权限拒绝后的恢复路径。
-- 分离录音占位提交和手动文本 fallback / `transcriptFallback` 语义。
+- 真机 1 分钟录音手动停止后能显示本地文件。
+- 真机 10 分钟到点自动停止后不丢本地文件。
+- 录音中断 / 系统错误后页面不再停留在“录音中”。
+- 拒绝麦克风权限后再次点击能引导打开设置。
+- 录音占位提交和手动文本提交在 mock 文案上可区分。
 
-D1.1 修完并完成验证后，再进入阶段 D2.1：
+D1.1 真机验证通过后，再进入阶段 D2.1：
 
 - 配置微信云开发环境 ID。
 - 封装上传 service，不在页面直接散落 `wx.cloud.uploadFile`。
