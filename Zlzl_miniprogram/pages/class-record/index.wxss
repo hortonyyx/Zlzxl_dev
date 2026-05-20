@@ -22,11 +22,12 @@
 
 .textarea {
   width: 100%;
-  min-height: 360rpx;
+  min-height: 300rpx;
+  margin-top: 18rpx;
   padding: 24rpx;
   box-sizing: border-box;
   border-radius: 12rpx;
-  background: #ffffff;
+  background: #f9fafb;
   font-size: 28rpx;
   line-height: 1.6;
 }
@@ -39,10 +40,31 @@
   background: #ffffff;
 }
 
+.fallback {
+  border: 2rpx solid #d1d5db;
+}
+
 .record-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
+}
+
+.fallback-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16rpx;
+}
+
+.fallback-badge {
+  flex-shrink: 0;
+  padding: 4rpx 12rpx;
+  border-radius: 999rpx;
+  background: #eef2ff;
+  color: #3730a3;
+  font-size: 22rpx;
+  line-height: 1.4;
 }
 
 .record-label,
@@ -101,6 +123,30 @@
   background: #f9fafb;
 }
 
+.upload-card {
+  margin-top: 20rpx;
+  padding: 20rpx;
+  border-radius: 12rpx;
+  background: #ffffff;
+}
+
+.upload-meter {
+  margin-top: 14rpx;
+}
+
+.upload-action {
+  width: 100%;
+  margin-top: 16rpx;
+}
+
+.error-text {
+  display: block;
+  margin-top: 14rpx;
+  color: #dc2626;
+  font-size: 24rpx;
+  line-height: 1.5;
+}
+
 .primary-action {
   border-radius: 12rpx;
   background: #111827;
@@ -124,4 +170,9 @@
 .danger-action {
   background: #dc2626;
   color: #ffffff;
+}
+
+.fallback-action {
+  width: 100%;
+  margin-top: 20rpx;
 }

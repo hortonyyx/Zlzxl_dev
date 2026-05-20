@@ -2,10 +2,11 @@ import type { ClassSession, ClassSessionStatus, LearningNode, QuizQuestion } fro
 import { callCloud } from './cloud';
 import { createMockId, getMockNow, mockStore } from './mock-store';
 
-interface SubmitClassRequest {
+export interface SubmitClassRequest {
   libraryId: string;
   recordingFileId?: string;
   transcriptFallback?: string;
+  localRecordingHint?: string;
 }
 
 interface SubmitManualClassRequest {
@@ -28,15 +29,11 @@ interface AdvanceClassResponse {
 }
 
 export function submitManualClass(libraryId: string, content: string): Promise<SubmitManualClassResponse> {
-  return submitClass(libraryId, undefined, content);
+  return submitClass({ libraryId, transcriptFallback: content });
 }
 
-export function submitClass(
-  libraryId: string,
-  recordingFileId?: string,
-  transcriptFallback?: string,
-): Promise<SubmitManualClassResponse> {
-  return callCloud('submitClass', { libraryId, recordingFileId, transcriptFallback }, mockSubmitClass);
+export function submitClass(request: SubmitClassRequest): Promise<SubmitManualClassResponse> {
+  return callCloud('submitClass', request, mockSubmitClass);
 }
 
 export function advanceClass(sessionId: string): Promise<AdvanceClassResponse> {
@@ -52,9 +49,7 @@ function mockSubmitClass(request: SubmitClassRequest): SubmitManualClassResponse
   const classIndex =
     mockStore.nodes.filter((node) => node.libraryId === request.libraryId && node.type === 'class').length + 1;
   const nodeId = createMockId('node-class');
-  const transcript =
-    request.transcriptFallback?.trim() ||
-    `mock 转写:第 ${classIndex} 节课围绕课程主线展开,老师反复比较概念、案例和考试中的论述方式。`;
+  const transcript = buildMockTranscript(request, classIndex);
   const keyPoints = buildMockKeyPoints(classIndex);
   const coreQuestions = buildMockCoreQuestions(classIndex);
   const quiz = buildMockQuiz(classIndex, coreQuestions);
@@ -69,7 +64,7 @@ function mockSubmitClass(request: SubmitClassRequest): SubmitManualClassResponse
     recordingFileIds: request.recordingFileId ? [request.recordingFileId] : [],
     transcript,
     summary: {
-      full: `第 ${classIndex} 节课已整理完成。这份 mock 输出模拟真实链路中的 ASR 转写和 LLM 总结,会先帮助你回看本节课讲了什么,再进入课后测验。`,
+      full: buildMockSummaryFull(request, classIndex),
       points: keyPoints,
       keyPoints,
       coreQuestions,
@@ -144,6 +139,40 @@ function ensureLegacyMailuoRecord(libraryId: string, nodeId: string, classIndex:
     unresolved: [],
     observations: ['下一步先完成本节课测验,不进入今日学习编排。'],
   };
+}
+
+function buildMockTranscript(request: SubmitClassRequest, classIndex: number): string {
+  const manualTranscript = request.transcriptFallback?.trim();
+  if (manualTranscript) {
+    return manualTranscript;
+  }
+
+  const localRecordingHint = request.localRecordingHint?.trim();
+  if (localRecordingHint) {
+    return `mock 转写:第 ${classIndex} 节课来自本地录音占位。${localRecordingHint}。D1.1 阶段只验证录音文件获取,云上传和 ASR 会在 D2/E 接入。`;
+  }
+
+  if (request.recordingFileId) {
+    return `mock 转写:第 ${classIndex} 节课来自云录音 ${request.recordingFileId},后续会由 ASR 生成真实转写。`;
+  }
+
+  return `mock 转写:第 ${classIndex} 节课围绕课程主线展开,老师反复比较概念、案例和考试中的论述方式。`;
+}
+
+function buildMockSummaryFull(request: SubmitClassRequest, classIndex: number): string {
+  if (request.transcriptFallback?.trim()) {
+    return `第 ${classIndex} 节课已根据手动文本 fallback 整理完成。这份 mock 输出模拟 LLM 总结,会先帮助你回看本节课讲了什么,再进入课后测验。`;
+  }
+
+  if (request.recordingFileId) {
+    return `第 ${classIndex} 节课已根据云端录音占位整理完成。当前 mock 输出已关联 recordingFileId,后续 E 阶段会用它触发 ASR 和 LLM 生成真实课堂输出。`;
+  }
+
+  if (request.localRecordingHint?.trim()) {
+    return `第 ${classIndex} 节课已根据本地录音占位整理完成。当前 mock 输出已保留本地录音信息,后续 D2 会先上传录音,再由 ASR 和 LLM 生成真实课堂输出。`;
+  }
+
+  return `第 ${classIndex} 节课已整理完成。这份 mock 输出模拟真实链路中的 ASR 转写和 LLM 总结,会先帮助你回看本节课讲了什么,再进入课后测验。`;
 }
 
 function buildMockKeyPoints(classIndex: number): string[] {

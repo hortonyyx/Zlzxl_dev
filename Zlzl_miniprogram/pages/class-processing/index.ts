@@ -10,6 +10,7 @@ Page({
     sessionId: '',
     nodeId: '',
     status: 'transcribing' as ClassSessionStatus,
+    statusText: '转写中',
     done: false,
   },
 
@@ -23,7 +24,12 @@ Page({
   async advance() {
     try {
       const result = await advanceClass(this.data.sessionId);
-      this.setData({ status: result.status, nodeId: result.nodeId ?? '', done: result.status === 'done' });
+      this.setData({
+        status: result.status,
+        statusText: getClassStatusText(result.status),
+        nodeId: result.nodeId ?? '',
+        done: result.status === 'done',
+      });
     } catch {
       showToast('处理失败');
     }
@@ -35,3 +41,18 @@ Page({
     });
   },
 });
+
+function getClassStatusText(status: ClassSessionStatus): string {
+  const statusTextMap: Record<ClassSessionStatus, string> = {
+    'recording-uploaded': '录音已提交',
+    transcribing: '转写中',
+    summarizing: '生成课堂总结中',
+    extracting: '生成课堂总结中',
+    rewriting: '生成课堂总结中',
+    'generating-quiz': '生成课后测验中',
+    done: '已完成',
+    failed: '处理失败',
+  };
+
+  return statusTextMap[status];
+}

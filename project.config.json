@@ -20,7 +20,9 @@
     "minifyWXML": true,
     "localPlugins": false,
     "disableUseStrict": false,
-    "useCompilerPlugins": ["typescript"],
+    "useCompilerPlugins": [
+      "typescript"
+    ],
     "condition": false,
     "swc": false,
     "disableSWC": true,
@@ -32,9 +34,10 @@
   },
   "compileType": "miniprogram",
   "libVersion": "latest",
-  "appid": "wx079dcb069cc3c195",
+  "appid": "wx639fdaa00c356c5f",
   "projectname": "Zlzl_dev",
   "miniprogramRoot": "Zlzl_miniprogram/",
+  "cloudfunctionRoot": "cloudfunctions/",
   "condition": {},
   "simulatorPluginLibVersion": {},
   "editorSetting": {}

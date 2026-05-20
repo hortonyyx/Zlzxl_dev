@@ -1,19 +1,23 @@
 import { routes } from '../../constants/routes';
-import { submitClass, submitManualClass } from '../../services/class-session';
+import { submitClass as submitClassSession, submitManualClass } from '../../services/class-session';
+import { UploadClassRecordingResult, uploadClassRecording } from '../../services/upload';
 import {
   CLASS_RECORD_MAX_DURATION_MS,
   RecorderFile,
   formatFileSize,
   formatRecordDuration,
+  onRecorderRuntimeEvent,
   startClassRecording,
-  stopRecording,
+  stopRecording as stopRecorder,
 } from '../../utils/recorder';
 import { showToast } from '../../utils/toast';
 
-let recordTimer: number | undefined;
-let recordStartedAt = 0;
-
 Page({
+  recordTimer: undefined as number | undefined,
+  recordStartedAt: 0,
+  stopInFlight: false,
+  unsubscribeRecorderRuntime: null as (() => void) | null,
+
   data: {
     title: '上课录音',
     libraryId: '',
@@ -21,10 +25,15 @@ Page({
     stopping: false,
     elapsedMs: 0,
     elapsedText: '00:00',
+    progressPercent: 0,
     maxDurationText: formatRecordDuration(CLASS_RECORD_MAX_DURATION_MS),
     recordedFile: null as RecorderFile | null,
     recordedDurationText: '',
     recordedFileSizeText: '',
+    uploadResult: null as UploadClassRecordingResult | null,
+    uploading: false,
+    uploadProgress: 0,
+    uploadError: '',
     content:
       '这节课继续讨论现代主义设计。老师提到功能主义带来了秩序,但也可能忽略个体经验。后现代设计用多元符号回应这个问题。',
     submitting: false,
@@ -32,12 +41,25 @@ Page({
 
   onLoad(options: Record<string, string | undefined>) {
     this.setData({ libraryId: options.libraryId ?? '' });
+    this.unsubscribeRecorderRuntime = onRecorderRuntimeEvent((event) => {
+      if (event.type === 'stop') {
+        if (!this.data.recording && !this.data.stopping) {
+          return;
+        }
+        this.finishRecording(event.file);
+        return;
+      }
+
+      this.handleRecordingFailure(event.message);
+    });
   },
 
   onUnload() {
+    this.unsubscribeRecorderRuntime?.();
+    this.unsubscribeRecorderRuntime = null;
     this.clearRecordTimer();
     if (this.data.recording) {
-      void stopRecording().catch(() => undefined);
+      void stopRecorder().catch(() => undefined);
     }
   },
 
@@ -48,15 +70,21 @@ Page({
   async startRecording() {
     try {
       await startClassRecording();
-      recordStartedAt = Date.now();
+      this.recordStartedAt = Date.now();
+      this.stopInFlight = false;
       this.setData({
         recording: true,
         stopping: false,
         elapsedMs: 0,
         elapsedText: '00:00',
+        progressPercent: 0,
         recordedFile: null,
         recordedDurationText: '',
         recordedFileSizeText: '',
+        uploadResult: null,
+        uploading: false,
+        uploadProgress: 0,
+        uploadError: '',
       });
       this.startRecordTimer();
     } catch (error) {
@@ -65,25 +93,17 @@ Page({
   },
 
   async stopRecording() {
-    if (!this.data.recording || this.data.stopping) {
+    if (!this.data.recording || this.data.stopping || this.stopInFlight) {
       return;
     }
 
+    this.stopInFlight = true;
     this.setData({ stopping: true });
     try {
-      const file = await stopRecording();
-      this.clearRecordTimer();
-      this.setData({
-        recording: false,
-        stopping: false,
-        recordedFile: file,
-        recordedDurationText: formatRecordDuration(file.duration),
-        recordedFileSizeText: formatFileSize(file.fileSize),
-      });
+      const file = await stopRecorder();
+      this.finishRecording(file);
     } catch (error) {
-      this.clearRecordTimer();
-      this.setData({ recording: false, stopping: false });
-      showToast(error instanceof Error ? error.message : '录音停止失败');
+      this.handleRecordingFailure(error instanceof Error ? error.message : '录音停止失败');
     }
   },
 
@@ -95,8 +115,14 @@ Page({
 
     this.setData({ submitting: true });
     try {
-      const transcriptFallback = `mock 转写:本节课来自一段 ${this.data.recordedDurationText} 的本地录音。D1 阶段先验证录音能力,云上传和 ASR 会在后续阶段接入。`;
-      const result = await submitClass(this.data.libraryId, undefined, transcriptFallback);
+      const recording = this.data.recordedFile;
+      const uploadResult = this.data.uploadResult;
+      const localRecordingHint = `本地录音 ${this.data.recordedDurationText}, ${this.data.recordedFileSizeText}, 临时路径 ${recording.tempFilePath}`;
+      const result = await submitClassSession({
+        libraryId: this.data.libraryId,
+        recordingFileId: uploadResult?.recordingFileId,
+        localRecordingHint: uploadResult ? undefined : localRecordingHint,
+      });
       wx.redirectTo({
         url: `${routes.classProcessing}?libraryId=${this.data.libraryId}&sessionId=${result.sessionId}`,
       });
@@ -104,6 +130,15 @@ Page({
       showToast('提交失败');
       this.setData({ submitting: false });
     }
+  },
+
+  async retryUploadRecording() {
+    if (!this.data.recordedFile) {
+      showToast('请先完成录音');
+      return;
+    }
+
+    await this.uploadRecordedFile(this.data.recordedFile);
   },
 
   async submitClass() {
@@ -127,9 +162,10 @@ Page({
 
   startRecordTimer() {
     this.clearRecordTimer();
-    recordTimer = setInterval(() => {
-      const elapsedMs = Math.min(Date.now() - recordStartedAt, CLASS_RECORD_MAX_DURATION_MS);
-      this.setData({ elapsedMs, elapsedText: formatRecordDuration(elapsedMs) });
+    this.recordTimer = setInterval(() => {
+      const elapsedMs = Math.min(Date.now() - this.recordStartedAt, CLASS_RECORD_MAX_DURATION_MS);
+      const progressPercent = Math.round((elapsedMs * 10000) / CLASS_RECORD_MAX_DURATION_MS) / 100;
+      this.setData({ elapsedMs, elapsedText: formatRecordDuration(elapsedMs), progressPercent });
       if (elapsedMs >= CLASS_RECORD_MAX_DURATION_MS && this.data.recording) {
         void this.stopRecording();
       }
@@ -137,9 +173,57 @@ Page({
   },
 
   clearRecordTimer() {
-    if (recordTimer !== undefined) {
-      clearInterval(recordTimer);
-      recordTimer = undefined;
+    if (this.recordTimer !== undefined) {
+      clearInterval(this.recordTimer);
+      this.recordTimer = undefined;
+    }
+  },
+
+  finishRecording(file: RecorderFile) {
+    this.clearRecordTimer();
+    this.stopInFlight = false;
+    const elapsedMs = Math.min(Date.now() - this.recordStartedAt, CLASS_RECORD_MAX_DURATION_MS);
+    const progressPercent = Math.round((elapsedMs * 10000) / CLASS_RECORD_MAX_DURATION_MS) / 100;
+    this.setData({
+      recording: false,
+      stopping: false,
+      elapsedMs,
+      elapsedText: formatRecordDuration(elapsedMs),
+      progressPercent,
+      recordedFile: file,
+      recordedDurationText: formatRecordDuration(elapsedMs),
+      recordedFileSizeText: formatFileSize(file.fileSize),
+      uploadResult: null,
+      uploading: false,
+      uploadProgress: 0,
+      uploadError: '',
+    });
+    void this.uploadRecordedFile(file);
+  },
+
+  handleRecordingFailure(message: string) {
+    this.clearRecordTimer();
+    this.stopInFlight = false;
+    this.setData({ recording: false, stopping: false });
+    showToast(message);
+  },
+
+  async uploadRecordedFile(file: RecorderFile) {
+    this.setData({ uploading: true, uploadProgress: 0, uploadError: '', uploadResult: null });
+    try {
+      const result = await uploadClassRecording({
+        libraryId: this.data.libraryId,
+        recording: file,
+        onProgress: (progress) => {
+          this.setData({ uploadProgress: progress });
+        },
+      });
+      this.setData({ uploading: false, uploadProgress: 100, uploadResult: result });
+    } catch (error) {
+      this.setData({
+        uploading: false,
+        uploadError: error instanceof Error ? error.message : '录音上传失败',
+      });
     }
   },
 });

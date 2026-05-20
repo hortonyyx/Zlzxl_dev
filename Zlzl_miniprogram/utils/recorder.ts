@@ -8,9 +8,16 @@ export interface RecorderFile {
 }
 
 export type RecorderState = 'idle' | 'recording' | 'stopping';
+export type RecorderRuntimeEvent =
+  | { type: 'stop'; file: RecorderFile }
+  | { type: 'error'; message: string }
+  | { type: 'interruption'; message: string };
+export type RecorderRuntimeEventHandler = (event: RecorderRuntimeEvent) => void;
+
+const RECORD_DURATION_GUARD_MS = 5000;
 
 const classRecordOption: WechatMiniprogram.RecorderManagerStartOption = {
-  duration: CLASS_RECORD_MAX_DURATION_MS,
+  duration: CLASS_RECORD_MAX_DURATION_MS + RECORD_DURATION_GUARD_MS,
   sampleRate: 16000,
   numberOfChannels: 1,
   encodeBitRate: 48000,
@@ -29,35 +36,69 @@ class AppRecorder {
   private pendingStart: (() => void) | null = null;
   private pendingStop: ((file: RecorderFile) => void) | null = null;
   private pendingReject: ((error: Error) => void) | null = null;
+  private runtimeHandlers: RecorderRuntimeEventHandler[] = [];
+  private suppressNextStop = false;
 
   constructor() {
     this.manager.onStart(() => {
       this.state = 'recording';
+      this.suppressNextStop = false;
       this.pendingStart?.();
       this.pendingStart = null;
+      // Keep this clear after start, otherwise recording-time errors would reject a settled start promise.
+      this.pendingReject = null;
     });
 
     this.manager.onStop((result) => {
       this.state = 'idle';
+      if (this.suppressNextStop) {
+        this.suppressNextStop = false;
+        this.clearPending();
+        return;
+      }
+
       const file: RecorderFile = {
         tempFilePath: result.tempFilePath,
         duration: result.duration,
         fileSize: result.fileSize,
       };
-      this.pendingStop?.(file);
+      const pendingStop = this.pendingStop;
       this.clearPending();
+      if (pendingStop) {
+        pendingStop(file);
+        return;
+      }
+      this.notifyRuntime({ type: 'stop', file });
     });
 
     this.manager.onError((result) => {
       this.state = 'idle';
-      this.pendingReject?.(new Error(result.errMsg || '录音失败'));
+      this.suppressNextStop = true;
+      const message = result.errMsg || '录音失败';
+      const pendingReject = this.pendingReject;
       this.clearPending();
+      if (pendingReject) {
+        pendingReject(new Error(message));
+        return;
+      }
+      this.notifyRuntime({ type: 'error', message });
     });
 
     this.manager.onInterruptionBegin(() => {
       this.state = 'idle';
-      this.pendingReject?.(new Error('录音被系统中断'));
+      this.suppressNextStop = true;
+      const message = '录音被系统中断';
+      const pendingReject = this.pendingReject;
       this.clearPending();
+      if (pendingReject) {
+        pendingReject(new Error(message));
+        return;
+      }
+      this.notifyRuntime({ type: 'interruption', message });
+    });
+
+    this.manager.onInterruptionEnd(() => {
+      // MVP does not auto-resume; the page asks the user to start a fresh recording.
     });
   }
 
@@ -73,6 +114,13 @@ class AppRecorder {
   async startQuizVoice(): Promise<void> {
     await ensureRecordPermission();
     return this.start(quizVoiceOption);
+  }
+
+  onRuntimeEvent(handler: RecorderRuntimeEventHandler): () => void {
+    this.runtimeHandlers.push(handler);
+    return () => {
+      this.runtimeHandlers = this.runtimeHandlers.filter((item) => item !== handler);
+    };
   }
 
   stop(): Promise<RecorderFile> {
@@ -105,6 +153,10 @@ class AppRecorder {
     this.pendingStop = null;
     this.pendingReject = null;
   }
+
+  private notifyRuntime(event: RecorderRuntimeEvent): void {
+    this.runtimeHandlers.forEach((handler) => handler(event));
+  }
 }
 
 const appRecorder = new AppRecorder();
@@ -125,6 +177,10 @@ export function stopRecording(): Promise<RecorderFile> {
   return appRecorder.stop();
 }
 
+export function onRecorderRuntimeEvent(handler: RecorderRuntimeEventHandler): () => void {
+  return appRecorder.onRuntimeEvent(handler);
+}
+
 export function formatRecordDuration(durationMs: number): string {
   const totalSeconds = Math.max(0, Math.floor(durationMs / 1000));
   const minutes = Math.floor(totalSeconds / 60);
@@ -143,8 +199,23 @@ function ensureRecordPermission(): Promise<void> {
   return new Promise((resolve, reject) => {
     wx.getSetting({
       success(setting) {
-        if (setting.authSetting['scope.record']) {
+        const recordAuth = setting.authSetting['scope.record'];
+        if (recordAuth === true) {
           resolve();
+          return;
+        }
+
+        if (recordAuth === false) {
+          wx.openSetting({
+            success(nextSetting) {
+              if (nextSetting.authSetting['scope.record']) {
+                resolve();
+                return;
+              }
+              reject(new Error('需要在设置中开启麦克风权限才能录音'));
+            },
+            fail: () => reject(new Error('无法打开权限设置')),
+          });
           return;
         }
 

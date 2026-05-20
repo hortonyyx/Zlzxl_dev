@@ -123,6 +123,13 @@ interface QuizAnswer {
   - 输出：`status`、完成时返回 `nodeId`。
   - 行为：推进转写、总结、测验生成。
   - 要求：幂等；重复调用不能重复创建课堂节点。
+  - E 阶段输入契约：
+    1. 从 `ClassSession.recordingFileId` 读取微信云存储 fileID。
+    2. 云函数内调用 `cloud.getTempFileURL({ fileList: [recordingFileId] })` 得到临时下载 URL。
+    3. 将临时下载 URL 传给 ASR 服务，得到课堂 `transcript`。
+    4. 将 `transcript` 传给 LLM，生成 `ClassSummary` 和 3 道 `QuizQuestion`。
+    5. 写入 class node，并把 session 状态置为 `done`。
+  - 密钥和模型配置只从云函数环境变量读取：`ASR_*`、`LLM_*`。
 
 - `gradeQuizAnswer`
   - 输入：`nodeId`、`questionId`、`answerText`。
