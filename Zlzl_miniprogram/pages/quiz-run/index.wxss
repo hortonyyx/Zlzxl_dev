@@ -34,6 +34,18 @@
   line-height: 1.5;
 }
 
+.answer {
+  width: 100%;
+  min-height: 180rpx;
+  margin-top: 18rpx;
+  padding: 20rpx;
+  box-sizing: border-box;
+  border-radius: 10rpx;
+  background: #f9fafb;
+  font-size: 26rpx;
+  line-height: 1.5;
+}
+
 .primary-action {
   border-radius: 12rpx;
   background: #111827;

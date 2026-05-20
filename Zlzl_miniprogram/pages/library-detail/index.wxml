@@ -10,7 +10,7 @@
       <button class="primary-action" bindtap="goStudyNode">开始今日学习</button>
     </view>
 
-    <view wx:if="{{mailuo.stations.length === 0}}" class="panel empty">
+    <view wx:if="{{!mailuo || mailuo.stations.length === 0}}" class="panel empty">
       <text class="panel-title">脉络会长大</text>
       <text class="description">输入第一节课后,这里会出现第一站、本次更新和学伴便签。</text>
       <button class="primary-action" bindtap="goClassRecord">手动输入课堂内容</button>
@@ -34,8 +34,10 @@
 
     <view class="panel">
       <text class="panel-title">学伴便签</text>
-      <text wx:for="{{mailuo.stickyNotes.unresolved}}" wx:key="*this" class="note">未解决: {{item}}</text>
-      <text wx:for="{{mailuo.stickyNotes.observations}}" wx:key="*this" class="note">观察: {{item}}</text>
+      <block wx:if="{{mailuo}}">
+        <text wx:for="{{mailuo.stickyNotes.unresolved}}" wx:key="*this" class="note">未解决: {{item}}</text>
+        <text wx:for="{{mailuo.stickyNotes.observations}}" wx:key="*this" class="note">观察: {{item}}</text>
+      </block>
     </view>
   </block>
 </view>

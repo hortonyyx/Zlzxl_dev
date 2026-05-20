@@ -10,6 +10,7 @@ Page({
     libraryId: '',
     studyNodeId: '',
     questions: [] as QuizQuestion[],
+    answerDrafts: [] as string[],
     loading: true,
     submitting: false,
   },
@@ -26,11 +27,18 @@ Page({
       const node = await getStudyNode(studyNodeId);
       const module = node?.plan?.modules.find((item) => item.type === 'quiz');
       const questions = await getQuizQuestions(module?.knowledgePointIds ?? []);
-      this.setData({ questions, loading: false });
+      this.setData({ questions, answerDrafts: questions.map(() => ''), loading: false });
     } catch {
       showToast('测验加载失败');
       this.setData({ loading: false });
     }
+  },
+
+  onAnswerInput(event: WechatMiniprogram.Input) {
+    const index = Number(event.currentTarget.dataset.index);
+    const answerDrafts = [...this.data.answerDrafts];
+    answerDrafts[index] = event.detail.value;
+    this.setData({ answerDrafts });
   },
 
   async submitQuiz() {
@@ -41,7 +49,7 @@ Page({
         'quiz',
         this.data.questions.map((question, index) => ({
           knowledgePointId: question.knowledgePointId,
-          pass: index !== this.data.questions.length - 1,
+          pass: String(this.data.answerDrafts[index] ?? '').trim().length >= 8,
         })),
       );
       wx.redirectTo({

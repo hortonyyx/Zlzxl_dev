@@ -4,8 +4,13 @@
     <text class="title">{{title}}</text>
     <view wx:for="{{questions}}" wx:key="_id" class="panel">
       <text class="panel-title">{{index + 1}}. {{item.prompt}}</text>
-      <text class="description">参考: {{item.expectedAnswer}}</text>
+      <textarea
+        class="answer"
+        data-index="{{index}}"
+        bindinput="onAnswerInput"
+        placeholder="用自己的话作答"
+      />
     </view>
-    <button class="primary-action" loading="{{submitting}}" bindtap="submitQuiz">提交 mock 答案</button>
+    <button class="primary-action" loading="{{submitting}}" bindtap="submitQuiz">提交测验</button>
   </block>
 </view>

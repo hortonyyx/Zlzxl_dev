@@ -58,6 +58,7 @@ function mockGradeModule(request: GradeModuleRequest): ModuleResult[] {
     const refreshed = refreshKnowledgeStatus(answer.knowledgePointId);
     if (node) {
       refreshStationStatuses(node.libraryId);
+      updateMailuoAfterModule(node.libraryId, request.moduleType, resultsPassLabel(answer.pass));
     }
 
     return {
@@ -71,6 +72,25 @@ function mockGradeModule(request: GradeModuleRequest): ModuleResult[] {
 
   moduleResultsByNode.set(request.studyNodeId, results);
   return results;
+}
+
+function updateMailuoAfterModule(libraryId: string, moduleType: ModuleType, label: string): void {
+  const mailuo = mockStore.mailuos.find((item) => item.libraryId === libraryId);
+  if (!mailuo) {
+    return;
+  }
+
+  const moduleName = moduleType === 'quiz' ? '测验' : '闪卡';
+  mailuo.updatedAt = getMockNow();
+  mailuo.latestUpdateNote = `刚完成一次${moduleName},${label}已经回写到知识点状态。黄色站点会继续提醒你补牢。`;
+  mailuo.stickyNotes = {
+    unresolved: mailuo.stickyNotes.unresolved,
+    observations: [`${moduleName}结果已改变脉络颜色,回到库主页可以看到复习后的 delta。`],
+  };
+}
+
+function resultsPassLabel(pass: boolean): string {
+  return pass ? '通过信号' : '薄弱信号';
 }
 
 function mockGetQuizQuestions(request: { knowledgePointIds: string[] }): QuizQuestion[] {
