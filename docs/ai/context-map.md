@@ -10,6 +10,7 @@
 - `docs/ai/agent-protocol.md`：交接和冲突处理规则。
 - `docs/ai/review-checklist.md`：模块和里程碑审阅标准。
 - `docs/ai/context-reset.md`：干净上下文交接模板。
+- `docs/ai/wrap-up.md`：一轮工作结束的收工清单。
 - `docs/ai/session-notes.md`：决策、发现和经验。
 
 ## 产品文档

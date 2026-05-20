@@ -27,6 +27,7 @@
 - `docs/ai/agent-protocol.md`：跨 Agent 交接和冲突规则。
 - `docs/ai/model-roles.md`：模型分工。
 - `docs/ai/review-checklist.md`：模块和里程碑审阅清单。
+- `docs/ai/wrap-up.md`：一轮工作结束的收工清单。
 
 按需加载：
 
