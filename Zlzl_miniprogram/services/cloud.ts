@@ -13,9 +13,13 @@ export type CloudFunctionName =
   | 'planStudy'
   | 'getStudyNode'
   | 'getLearningNode'
+  | 'listClassNodes'
   | 'getQuizQuestions'
+  | 'getClassQuizQuestions'
   | 'getFlashcards'
-  | 'gradeModule';
+  | 'gradeModule'
+  | 'gradeQuizAnswer'
+  | 'getQuizAnswers';
 
 export async function callCloud<TRequest, TResponse>(
   name: CloudFunctionName,

@@ -16,6 +16,6 @@
     </view>
     <view class="panel muted">完整转写稿 / 纠错入口占位</view>
     <button class="primary-action" bindtap="startQuiz">开始课后测验</button>
-    <button class="secondary-action" bindtap="backToLibrary">回到脉络</button>
+    <button class="secondary-action" bindtap="backToLibrary">回到课程记录</button>
   </block>
 </view>

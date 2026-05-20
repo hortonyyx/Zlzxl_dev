@@ -214,3 +214,212 @@ ASR、LLM)。
 1. 接哪家 ASR / LLM(MVP 一直挂着的两个待确认)。
 2. 长录音降级的具体分段参数(前台连续 + 中断续录)。
 3. D 类项是否要在阶段 3 之前顺手清掉。
+
+## 2026-05-20 MVP 范围调整：先跑通真实上课模式
+
+用户决定收窄 / 调整当前 MVP：第一阶段不再以“学习脉络 + 今日学习 +
+长期复习回写”为实现目标，而是先实现课程学习模式的一节课真实链路。
+
+新的最小闭环：
+
+```text
+创建课程学习库 → 开始上课 → 录音(先 10 分钟) → 上传录音 →
+ASR 转写 → LLM 生成课堂输出 → 生成课后测验 →
+用户文字 / 语音答题 → LLM 点评 / 判分
+```
+
+本轮页面范围对齐 `docs/product/prototype.html` 的 1、2、3、4、5、6、7、8、10：
+
+- 库列表 / 首页。
+- 新建学习库；资料上传先不做。
+- 空库页。
+- 库主页；先改成课程记录列表 + 开始上课，不做今日学习 / 学习脉络主体验。
+- 单节课详情。
+- 10 分钟录音页。
+- 课后处理进度。
+- 课堂总结节点。
+- 问答测验；支持文字答题和语音答题。
+
+明确暂不做：
+
+- 学习脉络重写、今日学习、到期复习、跨课记忆、状态色。
+- 闪卡、学习节点编排、脉络更新结果页。
+- 资料上传、45 分钟长录音、复杂分段续录。
+
+已同步：
+
+- `docs/specs/mvp-implementation/requirements.md`
+- `docs/specs/mvp-implementation/design.md`
+- `docs/specs/mvp-implementation/tasks.md`
+- `docs/ai/NEXT_WINDOW.md`
+
+下一步进入阶段 B：数据模型与服务契约收敛。需要尽快确认微信云开发环境 ID、
+ASR 服务商、LLM 服务商 / 模型，以及一段 2-10 分钟真实课堂测试材料。
+
+## 2026-05-20 上课模式 MVP 阶段 A/B/C checkpoint
+
+已完成阶段 A：总控执行包改为上课模式最小闭环。
+
+已完成阶段 B：数据模型与 service 契约收敛。
+
+- `types/learning.ts` 增补课堂节点字段、`QuizState`、`QuizAnswer`、
+  `QuizGradingResult`，并扩展 `ClassSessionStatus`。
+- `services/class-session.ts` 新增 `submitClass`，保留 `submitManualClass`
+  作为 fallback；mock 课堂节点现在自带 summary、transcript、quiz。
+- `services/module.ts` 新增 `getClassQuizQuestions`、`gradeQuizAnswer`、
+  `getQuizAnswers`，本节课测验不再依赖 study node。
+- `services/node.ts` 新增 `listClassNodes`。
+- `services/library.ts` 新建库 mock 固定为课程学习模式。
+
+已完成阶段 C：页面主路径调整。
+
+- `library-create`：资料上传改为暂不开放提示。
+- `library-detail`：从今日学习 / 脉络主视图改为课程记录列表 + 开始上课。
+- `station-detail`：改为单节课详情。
+- `node-summary`：开始测验直接进入本节课 quiz，不再调用 `planStudy`。
+- `quiz-run`：按 `nodeId` 获取本节课问答题，文字提交后展示 mock 点评。
+
+验证：`corepack pnpm run check` 通过。
+
+下一步：阶段 D，做 10 分钟真录音与上传。开始前需要微信云开发环境 ID；ASR /
+LLM 凭据可在阶段 E 前提供，但越早越好。
+
+## 2026-05-20 用户走查与 DeepSeek 审阅
+
+- 用户已在微信开发者工具走完阶段 A/B/C 后的 mock 主路径，反馈“没问题”。
+- 用户明确授权调用 DeepSeek 做外部交叉审阅。
+- DeepSeek 审阅已归档：
+  `docs/reviews/2026-05-20_mvp-scope-deepseek_review.md`。
+- 已采纳审阅意见：
+  - 阶段 D 拆为 D1 录音基础、D2 云存储上传、D3 上传后课堂提交。
+  - 增加 C.5 旧学习模式入口封存任务。
+  - 补充录音格式、文件命名、`recordingFileId` 生命周期和上传失败处理。
+  - 澄清 `transcriptFallback` 仅为开发 / 失败兜底文本，不是资料上传。
+
+小任务包位置：
+
+- 当前总控执行包：`docs/specs/mvp-implementation/`
+- 需求：`docs/specs/mvp-implementation/requirements.md`
+- 设计：`docs/specs/mvp-implementation/design.md`
+- 任务拆分：`docs/specs/mvp-implementation/tasks.md`
+
+阶段 C.5 已完成：
+
+- `study-node`、`flashcard-run`、`node-result` 进入后提示暂不开放并返回库主页。
+- 三个旧页面的静态标题 / WXML 已改为暂不开放，避免闪现旧流程。
+- `corepack pnpm run check` 通过。
+
+下一步进入 D1：10 分钟录音基础。D1 可以先不依赖云环境；D2 云存储上传前需要
+微信云开发环境 ID。
+
+## 2026-05-20 上课模式 MVP 阶段 D1 checkpoint
+
+已完成 D1：10 分钟本地录音基础。
+
+- 新增 `Zlzl_miniprogram/utils/recorder.ts`：
+  - 统一封装 `wx.getRecorderManager`。
+  - 课堂录音最长 10 分钟。
+  - 录音配置优先 `mp3`、16 kHz、单声道、语音码率。
+  - 预留 60 秒短语音答题录音入口。
+- `class-record` 已从纯手动文本页改为录音页：
+  - 支持授权、开始录音、计时、结束课。
+  - 到 10 分钟自动停止。
+  - 显示本地临时文件路径、时长和大小。
+  - “用录音进入 mock 处理”会用 `transcriptFallback` 进入现有 mock 总结 / 测验流程。
+  - 手动文本 fallback 保留。
+- `app.json` 增加 `scope.record` 权限说明。
+- 搜索确认录音相关 `wx.*` API 只在 `utils/recorder.ts` 和 `app.json` 中出现，
+  页面没有直接散落录音 API。
+
+验证：
+
+- `corepack pnpm run check` 通过。
+
+仍需微信开发者工具 / 真机检查：
+
+- 首次进入录音页会弹出麦克风授权说明。
+- 拒绝授权后提示可理解。
+- 真机录制 1 分钟可以停止并显示本地文件信息。
+- 真机录制到 10 分钟会自动停止。
+- “用录音进入 mock 处理”可进入处理页并生成课堂总结。
+
+下一步进入 D2：云存储上传。开始前需要微信云开发环境 ID。
+
+## 2026-05-20 真机 sitemap 修复与 Claude 审阅包
+
+真机调试报错：
+
+```text
+Error: 系统错误，错误码：-80055,Invalid SiteMap, sitemap错误，缺少rules字段
+appid: wx079dcb069cc3c195
+```
+
+根因：`Zlzl_miniprogram/sitemap.json` 只有 `desc`，缺微信要求的 `rules` 字段。
+
+修复：
+
+- `Zlzl_miniprogram/sitemap.json` 补充：
+  - `rules[0].action = "allow"`
+  - `rules[0].page = "*"`
+- `Zlzl_miniprogram/pages/class-record/index.json` 导航标题从“手动输入课堂”改为
+  “上课录音”。
+
+验证：
+
+- `sitemap.json` JSON 校验通过，且包含 `rules`。
+- `class-record/index.json` JSON 校验通过。
+- `corepack pnpm run check` 通过。
+
+Claude 审阅：
+
+- 已创建 `docs/reviews/2026-05-20_mvp-class-loop_claude_review_request.md`。
+- 审阅包覆盖：执行包、阶段 A/B/C/C.5/D1 已执行部分、DeepSeek 审阅采纳项、
+  sitemap 修复和下一阶段 D2 风险。
+- 下一步按约定应先把该审阅请求交给 Claude / Opus 家族审阅；无阻塞后再进入 D2。
+
+## 2026-05-20 审阅归档规范更新
+
+用户明确要求：后续审阅都要以文档形式落到 `docs/reviews/`，不能只停留在
+模型聊天输出。
+
+已同步到：
+
+- `docs/ai/review-checklist.md`
+- `docs/ai/agent-protocol.md`
+- `docs/ai/wrap-up.md`
+- `docs/ai/vibe-coding-system.md`
+- `docs/reviews/README.md`
+
+新硬规则：
+
+- 审阅文件统一放 `docs/reviews/`。
+- 文件名格式：`YYYY-MM-DD_<目标>_<审阅方>_review.md`。
+- 必须保留原始审阅意见和处置摘要。
+- `docs/reviews/README.md` 必须追加索引。
+- 未归档的聊天审阅不算通过交叉审阅闸门。
+- 审阅完成后由审阅 Agent 单独 commit，视为完成一个审阅节点。
+- 审阅提出的修订 / bugfix / 设计调整进入下一轮开发，不混入审阅 commit。
+
+## 2026-05-20 Claude 审阅落档与处置
+
+Claude / Opus 审阅结果已落档：
+
+- `docs/reviews/2026-05-20_mvp-class-loop_claude_review.md`
+
+结论：**不建议在不修 P0 的情况下进入 D2**。
+
+已按“审阅节点不修代码”的规则完成处置：
+
+- 在审阅文件中补充处置摘要。
+- `docs/reviews/README.md` 追加索引。
+- `docs/specs/mvp-implementation/tasks.md` 增加 D1.1 审阅阻塞修复。
+- D2 拆为 D2.1 / D2.2 / D2.3。
+
+下一轮开发先做 D1.1，修复：
+
+- 10 分钟到点双停丢文件。
+- 录音中途错误静默。
+- 麦克风权限拒绝后的恢复路径。
+- 录音占位路径和手动文本 fallback / `transcriptFallback` 语义分离。
+
+修完 D1.1 且检查 / 真机验证通过后，再进入 D2.1 云环境与上传 service。

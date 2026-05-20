@@ -2,42 +2,34 @@
   <view wx:if="{{loading}}" class="state">加载中...</view>
   <block wx:else>
     <text class="title">{{library.name || title}}</text>
-    <text class="description">{{library.classCount}} 节课 · {{points.length}} 个知识点</text>
+    <text class="description">{{library.classCount}} 节课 · 课程学习模式</text>
 
-    <view class="panel">
-      <text class="panel-title">今日学习</text>
-      <text class="description">按黄色知识点和到期项生成学习节点</text>
-      <button class="primary-action" bindtap="goStudyNode">开始今日学习</button>
-    </view>
-
-    <view wx:if="{{!mailuo || mailuo.stations.length === 0}}" class="panel empty">
-      <text class="panel-title">脉络会长大</text>
-      <text class="description">输入第一节课后,这里会出现第一站、本次更新和学伴便签。</text>
-      <button class="primary-action" bindtap="goClassRecord">手动输入课堂内容</button>
+    <view wx:if="{{classNodes.length === 0}}" class="panel empty">
+      <text class="panel-title">还没有上课记录</text>
+      <text class="description">先完成第一节课。小知会在课后生成总结、要点、核心问题和 3 道测验题。</text>
+      <button class="primary-action" bindtap="goClassRecord">上第一节课</button>
     </view>
 
     <view wx:else class="panel">
-      <text class="panel-title">本次更新</text>
-      <text class="description">{{mailuo.latestUpdateNote}}</text>
+      <text class="panel-title">课程记录</text>
+      <text class="description">每节课结束后都会沉淀为一份课堂输出和一次课后测验。</text>
       <view
-        wx:for="{{mailuo.stations}}"
-        wx:key="nodeId"
-        class="station {{item.status}}"
-        data-node-id="{{item.nodeId}}"
-        bindtap="openStation"
+        wx:for="{{classNodes}}"
+        wx:key="_id"
+        class="station gray"
+        data-node-id="{{item._id}}"
+        bindtap="openClassNode"
       >
-        <text class="station-title">{{item.classIndex}}. {{item.title}}</text>
-        <text class="station-status">{{item.status}}</text>
+        <text class="station-title">第 {{item.classIndex}} 课 · {{item.title || '课堂总结'}}</text>
+        <text class="station-status">{{item.quizState === 'done' ? '测验已完成' : '待测验'}}</text>
       </view>
-      <button class="secondary-action" bindtap="goClassRecord">继续输入新课</button>
+      <button class="secondary-action" bindtap="goClassRecord">开始下一节课</button>
     </view>
 
     <view class="panel">
-      <text class="panel-title">学伴便签</text>
-      <block wx:if="{{mailuo}}">
-        <text wx:for="{{mailuo.stickyNotes.unresolved}}" wx:key="*this" class="note">未解决: {{item}}</text>
-        <text wx:for="{{mailuo.stickyNotes.observations}}" wx:key="*this" class="note">观察: {{item}}</text>
-      </block>
+      <text class="panel-title">本轮先做什么</text>
+      <text class="note">录音先支持 10 分钟。</text>
+      <text class="note">资料上传、学习脉络和今日学习先不进入主路径。</text>
     </view>
   </block>
 </view>

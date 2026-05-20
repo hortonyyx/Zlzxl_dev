@@ -2,13 +2,13 @@
   <text class="title">{{title}}</text>
   <view class="mode active">
     <text class="mode-title">课程学习</text>
-    <text class="description">MVP 先验证课程上课 + 复习闭环</text>
+    <text class="description">MVP 先验证上课录音、课后输出和测验</text>
   </view>
   <view class="mode disabled">
     <text class="mode-title">自主学习</text>
     <text class="description">占位,后续重新设计</text>
   </view>
   <input class="input" value="{{name}}" bindinput="onNameInput" placeholder="输入课程学习库名称" />
-  <view class="upload-placeholder">资料入口占位: 文档 / 图片 / 文本</view>
+  <view class="upload-placeholder">课程资料上传暂不开放，先从第一节课录音开始。</view>
   <button class="primary-action" loading="{{saving}}" bindtap="createCourseLibrary">创建并进入空库</button>
 </view>

@@ -1,35 +1,42 @@
-import { listKnowledgePoints } from '../../services/knowledge';
-import { getMailuo } from '../../services/mailuo';
+import { routes } from '../../constants/routes';
 import { getLearningNode } from '../../services/node';
-import type { KnowledgePoint, LearningNode } from '../../types/learning';
+import type { LearningNode } from '../../types/learning';
 import { showToast } from '../../utils/toast';
 
 Page({
   data: {
-    title: '脉络站点',
+    title: '课堂详情',
+    libraryId: '',
     node: null as LearningNode | null,
-    points: [] as KnowledgePoint[],
     loading: true,
   },
 
   onLoad(options: Record<string, string | undefined>) {
+    this.setData({ libraryId: options.libraryId ?? '' });
     void this.loadStation(options.libraryId ?? '', options.nodeId ?? '');
   },
 
   async loadStation(libraryId: string, nodeId: string) {
     try {
-      const [node, points, mailuo] = await Promise.all([
-        getLearningNode(nodeId),
-        listKnowledgePoints(libraryId),
-        getMailuo(libraryId),
-      ]);
-      const station = mailuo?.stations.find((item) => item.nodeId === nodeId);
-      const stationPointIds = station?.knowledgePointIds ?? [];
-      const stationPoints = points.filter((point) => stationPointIds.includes(point._id));
-      this.setData({ node, points: stationPoints, loading: false });
+      const node = await getLearningNode(nodeId);
+      this.setData({ node, loading: false });
     } catch {
-      showToast('站点加载失败');
+      showToast('课堂详情加载失败');
       this.setData({ loading: false });
     }
+  },
+
+  openSummary() {
+    if (!this.data.node?._id) {
+      return;
+    }
+    wx.navigateTo({ url: `${routes.nodeSummary}?libraryId=${this.data.libraryId}&nodeId=${this.data.node._id}` });
+  },
+
+  startQuiz() {
+    if (!this.data.node?._id) {
+      return;
+    }
+    wx.navigateTo({ url: `${routes.quizRun}?libraryId=${this.data.libraryId}&nodeId=${this.data.node._id}` });
   },
 });

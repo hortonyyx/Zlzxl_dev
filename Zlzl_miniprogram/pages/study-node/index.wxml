@@ -1,19 +1,4 @@
 <view class="page">
-  <view wx:if="{{loading}}" class="description">加载中...</view>
-  <block wx:else>
-    <text class="title">{{title}}</text>
-    <view class="panel">
-      <text class="panel-title">为什么排这些</text>
-      <text class="description">{{node.plan.rationale}}</text>
-    </view>
-    <view wx:if="{{modules.length === 0}}" class="panel">
-      <text class="description">当前没有到期项,可以回看最近课堂总结。</text>
-    </view>
-    <view wx:for="{{modules}}" wx:key="type" class="panel">
-      <text class="panel-title">{{item.title}}</text>
-      <text class="description">{{item.rationale}}</text>
-      <text class="meta">{{item.pointNames}}</text>
-      <button class="primary-action" data-type="{{item.type}}" bindtap="startModule">开始{{item.title}}</button>
-    </view>
-  </block>
+  <text class="title">{{title}}</text>
+  <text class="description">本轮 MVP 先跑通上课录音、课堂输出和本节课测验。</text>
 </view>

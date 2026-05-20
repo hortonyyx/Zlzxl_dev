@@ -2,8 +2,18 @@ export type LibraryMode = 'course' | 'self';
 export type LearningStatus = 'green' | 'yellow' | 'gray';
 export type LearningNodeType = 'class' | 'study';
 export type ModuleType = 'quiz' | 'flashcard';
-export type ClassSessionStatus = 'transcribing' | 'summarizing' | 'extracting' | 'rewriting' | 'done' | 'failed';
+export type ClassSessionStatus =
+  | 'recording-uploaded'
+  | 'transcribing'
+  | 'summarizing'
+  | 'extracting'
+  | 'rewriting'
+  | 'generating-quiz'
+  | 'done'
+  | 'failed';
 export type ClassSessionStepStatus = 'pending' | 'running' | 'done' | 'failed';
+export type QuizState = 'not-started' | 'in-progress' | 'done';
+export type QuizAnswerMode = 'text' | 'voice';
 
 export interface Library {
   _id: string;
@@ -47,6 +57,7 @@ export interface MasterySignal {
 export interface ClassSummary {
   full: string;
   points: string[];
+  keyPoints?: string[];
   coreQuestions: string[];
 }
 
@@ -66,10 +77,14 @@ export interface LearningNode {
   libraryId: string;
   type: LearningNodeType;
   createdAt: number;
+  title?: string;
   classIndex?: number;
+  recordingFileId?: string;
   recordingFileIds?: string[];
   transcript?: string;
   summary?: ClassSummary;
+  quiz?: QuizQuestion[];
+  quizState?: QuizState;
   markedQuestions?: Array<{ atMs: number; note?: string }>;
   plan?: StudyPlan;
 }
@@ -108,6 +123,7 @@ export interface ClassSession {
   status: ClassSessionStatus;
   steps: ClassSessionStep[];
   updatedAt: number;
+  recordingFileId?: string;
   nodeId?: string;
   error?: string;
   lockedUntil?: number;
@@ -129,8 +145,26 @@ export interface StudySession {
 export interface QuizQuestion {
   _id: string;
   knowledgePointId: string;
+  stem: string;
+  referenceAnswer: string;
+  gradingRubric?: string;
   prompt: string;
   expectedAnswer: string;
+}
+
+export interface QuizAnswer {
+  questionId: string;
+  mode: QuizAnswerMode;
+  text: string;
+  voiceFileId?: string;
+  passed?: boolean;
+  score?: number;
+  feedback?: string;
+}
+
+export interface QuizGradingResult {
+  answer: QuizAnswer;
+  completed: boolean;
 }
 
 export interface Flashcard {

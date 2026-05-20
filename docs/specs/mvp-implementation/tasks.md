@@ -1,174 +1,214 @@
-# 任务 · 第一版 MVP 落地执行方案
+# 任务 · 上课模式最小闭环 MVP
 
 > 一次只推进一个任务组。每组完成后检查 + 微信开发者工具走查 + 交叉审阅。
 
-## 阶段 A · 执行准备与口径锁定
+## 阶段 A · MVP 口径调整
 
-目标:让所有 Agent 从同一份事实来源出发。
+目标：把执行包从“学习脉络 + 学习模式闭环”调整为“真实上课模式闭环”。
 
-- [ ] 确认本总控包与 `docs/specs/class-mode/` 无冲突。
-- [ ] 如用户认可,后续可把 `class-mode` 目录重命名为更准确的 `mvp-loop`
-      或保留现状并在索引中持续说明。
-- [ ] 建立第一轮执行看板:阶段、负责人、审阅方、状态、验证结果。
-- [ ] 进入编码前,由执行 Agent 复述当前阶段目标和最小改动文件。
+- [x] 更新 `requirements.md`。
+- [x] 更新 `design.md`。
+- [x] 更新 `tasks.md`。
+- [x] 同步 `docs/ai/NEXT_WINDOW.md` 和 `docs/ai/session-notes.md`。
 
-验证:
+验证：
 
-- 文档审阅通过即可;不需要运行代码检查。
+- 文档审阅通过即可；不需要运行代码检查。
 
-## 阶段 0 · 代码骨架盘点与路由基础
+## 阶段 B · 数据模型与服务契约收敛
 
-目标:在现有小程序骨架上建立可承载 12 屏的最小路由和目录结构。
+目标：把现有 mock 领域模型收敛到“课堂记录 / 课堂输出 / 测验”。
 
-- [ ] 读取现有 `app.json`、`routes.ts`、`pages/index/*`、`services/*`、
-      `utils/*`、`types/*`。
-- [ ] 新增 MVP 页面目录和 `app.json` 路由,先允许页面显示最小占位。
-- [ ] 定义稳定路由常量,避免页面里散落字符串。
-- [ ] 保持 `index` 可作为首页或迁移为 `library-list`,不要留下不可达入口。
+- [x] 梳理现有 `types/learning.ts`，补齐或调整课堂链路类型。
+- [x] 调整 `services/library.ts`：新建库只保留课程学习 + 库名。
+- [x] 调整 `services/class-session.ts`：创建课堂、提交录音、轮询处理、读取课堂节点。
+- [x] 调整 `services/module.ts` 或新增 `services/quiz.ts`：问答测验读取和提交。
+- [x] mock store 支持多节课堂记录，但不要求学习脉络更新。
+- [x] 页面主路径不再依赖今日学习 / 到期清单。
 
-建议负责人:
-
-- Codex:路由、类型、基础结构。
-- Claude:占位页视觉和导航检查。
-
-验证:
+验证：
 
 - `corepack pnpm run check`
-- 微信开发者工具能打开项目,首页可进入主路径占位页。
+- mock 下能从库进入一节课详情，并拿到总结与测验数据。
 
-## 阶段 1 · 领域类型与 mock 服务闭环
+## 阶段 C · 页面主路径调整
 
-目标:先把数据模型和服务契约立住,页面不直接持有业务规则。
+目标：按新 MVP 改造现有页面，不新增复杂页面体系。
 
-- [ ] 新增 `types/learning.ts`,定义 Library、KnowledgePoint、MasterySignal、
-      Node、Mailuo、StudyPlan 等共享类型。
-- [ ] 新增 `services/cloud.ts` mock 开关和统一调用形态。
-- [ ] 新增 `services/library.ts`、`mailuo.ts`、`class-session.ts`、
-      `study-session.ts`、`module.ts`、`knowledge.ts` 的 mock 实现。
-- [ ] mock 数据支持 demo 库、空库、两节课跨课关联、今日学习、测验 / 闪卡
-      信号回写。
-- [ ] `knowledge.ts` 实现 MVP 状态规则:黄优先、错晚于对则黄、有通过则绿、
-      无信号则灰;站点状态按知识点汇总。
+- [x] `library-list`：保留库列表和新建入口。
+- [x] `library-create`：资料上传隐藏或置灰；创建后进入空库。
+- [x] `library-detail`：空库态 / 课程记录列表 / 开始上课；移除今日学习主入口。
+- [x] `station-detail`：改为单节课详情。
+- [x] `node-summary`：展示课堂输出，开始本节课测验。
+- [x] `quiz-run`：只保留问答测验；支持文字答题的 UI 状态。
+- [x] 暂时弱化或隐藏 `study-node`、`flashcard-run`、脉络结果语义。
 
-建议负责人:
-
-- Codex 实现;Claude 审阅数据是否能支撑原型体验。
-
-验证:
+验证：
 
 - `corepack pnpm run check`
-- 手工在服务层确认两次课堂输入后 KnowledgePoint ID 可复用。
+- 微信开发者工具走通：新建库 → 空库 → mock 课堂输出 → 测验。
 
-## 阶段 2 · Mock UI 主路径
+## 阶段 C.5 · 旧学习模式入口封存
 
-目标:用真实小程序页面跑通体验闭环。
+目标：防止旧的学习模式页面被 URL 直达后显示过期语义。
 
-- [ ] `library-list`:库列表、demo 库、掌握分布微条、新建入口。
-- [ ] `library-create`:课程学习 / 自主学习占位、库名、资料入口占位。
-- [ ] `library-detail`:空库冷启动、学习脉络、今日学习卡、本次更新、学伴便签。
-- [ ] `class-record`:阶段 0 版手动输入课堂内容,提交后进入处理页。
-- [ ] `class-processing`:mock 处理进度,完成后进入课堂总结。
-- [ ] `node-summary`:三段式总结、完整转写入口占位、纠错入口占位、开始测验。
-- [ ] `study-node`:AI 编排列表,展示知识点和原因。
-- [ ] `quiz-run` / `flashcard-run`:完成模块并提交结果。
-- [ ] `node-result`:展示信号回写和状态变化,返回库主页。
-- [ ] `station-detail`:单站详情、知识提炼、你的状态。
+- [x] `study-node` 进入后提示“学习模式暂不开放”，返回库主页。
+- [x] `flashcard-run` 进入后提示“闪卡暂不开放”，返回库主页。
+- [x] `node-result` 不再作为脉络更新结果页使用，进入后返回库主页。
+- [x] 旧 service API 保留给编译兼容，但不再作为主路径入口。
 
-建议负责人:
-
-- Claude 实现页面和样式;Codex 审阅架构边界、状态流和类型。
-
-验证:
+验证：
 
 - `corepack pnpm run check`
-- 微信开发者工具走两条路径:
-  - demo 库 → 今日学习 → 测验 / 闪卡 → 结果 → 脉络更新。
-  - 新建库 → 空库 → 手动输入课堂内容 → 总结 → 测验 → 结果。
+- 手动访问旧页面不会展示今日学习 / 闪卡 / 脉络更新旧流程。
 
-## 阶段 2.5 · GO / NO-GO 产品闸门
+## 阶段 D1 · 10 分钟录音基础
 
-目标:在工程硬化前判断体验是否值得继续。
+目标：先把课堂录音本地能力跑通，不接云上传。
 
-- [ ] 用至少一门真实叙述型课程内容跑两节课 mock。
-- [ ] 观察用户是否理解"脉络会长大"。
-- [ ] 观察用户是否被本次更新、学伴便签、跨课关联打动。
-- [ ] 观察测验 / 闪卡是否愿意完成,以及结果页是否让状态变化可信。
-- [ ] 记录需要改的原型、文案、流程和数据模型。
+- [x] 新增或调整 `utils/recorder.ts`，封装课堂录音。
+- [x] 明确录音配置：优先 `mp3`、约 16 kHz、语音质量；最终以 ASR 兼容格式为准。
+- [x] `class-record` 支持录音授权、开始、计时、停止。
+- [x] 录音最长 10 分钟；到时自动停止。
+- [x] 录音结束后得到本地临时文件路径。
+- [x] 保留手动文本 fallback，便于开发和失败兜底。
 
-结论:
-
-- GO:体验成立,进入阶段 3。
-- NO-GO:停止接云和录音,回到产品 / 原型 / mock 流程调整。
-
-## 阶段 3 · 微信云开发数据底座
-
-目标:把阶段 1/2 的 mock 数据结构迁到云数据库,但仍可保留 mock 开关。
-
-- [ ] 初始化云开发环境和 collection。
-- [ ] 实现云函数基础调用封装,密钥只放云函数环境变量。
-- [ ] 迁移 Library、KnowledgePoint、MasterySignal、Node、Mailuo 数据读写。
-- [ ] 实现 `seedDemo` 或等价初始化能力。
-- [ ] mock / cloud 两套路径在 service 层切换,页面无感。
-
-建议负责人:
-
-- Codex 实现云函数与服务迁移;Claude 审阅页面无回归。
-
-验证:
+验证：
 
 - `corepack pnpm run check`
-- 微信开发者工具在真云数据库下走阶段 2 的核心闭环。
+- 真机录制 1 分钟和 10 分钟各一次。
+- 拒绝授权、停止录音、录音失败都有可理解状态。
 
-## 阶段 4 · 真新建库与真录音
+## 阶段 D1.1 · Claude 审阅阻塞修复
 
-目标:补齐课程学习库真实输入和上课录音能力。
+目标：修复 D1 审阅发现的录音可靠性阻塞项，修完后再进入 D2。
 
-- [ ] `library-create` 支持库名和至少一种资料输入。
-- [ ] `utils/recorder.ts` 实现前台分段录音、本地分段记录、中断提示。
-- [ ] `class-record` 从手动输入升级为极简录音页,保留课后补录 / 手动输入降级。
-- [ ] 录音分段上传到云存储。
+- [ ] 修复 10 分钟到点双停竞争：避免 wx 自动 stop 与 JS timer 主动 stop 同时触发导致丢文件。
+- [ ] 录音中途 `onError` / `onInterruptionBegin` 能同步到页面状态，停止计时并提示用户。
+- [ ] 麦克风权限曾被拒绝时走 `wx.openSetting` 恢复路径。
+- [ ] 录音占位提交与手动文本 fallback 分离；`transcriptFallback` 只服务手动文本。
+- [ ] 录音占位提交能保留本地录音信息，至少在 mock 总结 / 日志中可见。
+- [ ] `class-record` 进度百分比不在 WXML 写死 `600000`。
+- [ ] `recordTimer` / `recordStartedAt` 不使用模块作用域共享状态。
 
-验证:
+验证：
 
 - `corepack pnpm run check`
-- 真机前台连续录音 >=45 分钟。
-- 切后台 / 锁屏 / 来电后已保存分段不丢,并提示续录或补录。
+- 真机 10 分钟自动停止后能保留本地文件信息。
+- 录音中断 / 系统错误后页面不再停留在“录音中”。
+- 拒绝麦克风权限后再次点击能引导打开设置。
+- 录音占位提交和手动文本提交在 mock 文案上可区分。
 
-## 阶段 5 · 真课后处理流水线
+## 阶段 D2.1 · 云环境与上传 service
 
-目标:把手动 / mock 课堂内容替换为 ASR + LLM 流水线。
+目标：先建立云存储上传能力，不改页面主流程。
 
-- [ ] `submitClass`:接收录音 fileID,创建 ClassSession。
-- [ ] `advanceClass`:按转写、总结、知识点提取归一化、脉络重写推进。
-- [ ] 实现幂等、锁、重试、失败恢复契约。
-- [ ] `class-processing` 轮询状态并支持失败重试。
-- [ ] `planStudy` / `gradeModule` 接真 LLM,但仍以算法到期清单为输入边界。
+- [ ] 配置微信云开发环境 ID。
+- [ ] 封装上传 service，不在页面直接散落 `wx.cloud.uploadFile`。
+- [ ] 文件路径建议：`class-recordings/{libraryId}/{timestamp}.mp3`。
+- [ ] 上传 service 返回 `recordingFileId` 和基础元信息。
 
-验证:
+验证：
 
-- 一次真录音跑通到课堂总结。
-- 重复推进不产生重复节点 / 知识点 / 信号。
-- 失败后可重试,错误态用户可理解。
+- `corepack pnpm run check`
+- 使用本地临时录音文件调用上传 service 可得到云存储 fileID。
 
-## 阶段 6 · 收尾、冷启动与产品验证
+## 阶段 D2.2 · 录音页上传 UI
 
-目标:让第一版 MVP 可用于小范围真实试用。
+目标：把本地录音文件上传到微信云存储，得到 `recordingFileId`。
 
-- [ ] demo 库只读且质量足够展示三次课后的价值。
-- [ ] 全页面补 loading、empty、error、success 状态。
-- [ ] 汇总产品验证指标观察方式,哪怕先人工记录。
-- [ ] 里程碑审阅:GPT-5.5 与 Opus 分别独立审阅。
-- [ ] 根据审阅结论决定是否进入更大范围试用或回到产品调整。
+- [ ] 录音结束后上传到微信云存储。
+- [ ] 上传中显示进度或明确 loading。
+- [ ] 上传成功后显示 fileID / 上传完成状态。
+- [ ] 上传失败支持重试或回到手动文本 fallback。
 
-验证:
+验证：
 
-- requirements 全部功能验收。
-- 记忆证据核心验收全部通过。
+- `corepack pnpm run check`
+- 真机录制后上传成功，能拿到云存储 fileID。
+- 上传失败状态可恢复。
+
+## 阶段 D2.3 · 上传后课堂提交
+
+目标：把 `recordingFileId` 接回课堂 session，仍可先走 mock 处理。
+
+- [ ] `submitClass` 接收 `libraryId` + `recordingFileId`。
+- [ ] 本地临时文件上传成功后不再直接作为长期数据使用。
+- [ ] `class-processing` 能从上传成功进入处理页。
+- [ ] mock 下可用 `recordingFileId` 生成课堂总结和本节课测验。
+- [ ] `transcriptFallback` 只服务手动 textarea，录音路径不复用该字段。
+- [ ] 记录 ASR 阶段需要的输入契约：`recordingFileId` → 临时下载 URL / ASR 任务。
+
+验证：
+
+- `corepack pnpm run check`
+- 录音 → 上传 → mock 课堂总结 → 本节课测验可走通。
+
+## 阶段 E · 云开发处理流水线
+
+目标：把录音变成真实课堂输出。
+
+- [ ] 配置微信云开发环境。
+- [ ] 新增 `submitClass` 云函数。
+- [ ] 新增 `advanceClass` 云函数，推进 ASR → 总结 → 测验生成。
+- [ ] 密钥放云函数环境变量。
+- [ ] `class-processing` 轮询处理状态，完成后进入 `node-summary`。
+- [ ] 处理失败支持重试。
+
+验证：
+
+- `corepack pnpm run check`
+- 一段真实录音能得到转写、总结和 3 道测验题。
+- 重复轮询不产生重复课堂节点。
+
+## 阶段 F · 测验文字答题
+
+目标：先跑通最小测验闭环。
+
+- [ ] `quiz-run` 展示本节课生成的问答题。
+- [ ] 用户输入文字答案。
+- [ ] 调用 `gradeQuizAnswer` 得到点评 / 判分。
+- [ ] 支持下一题、完成态、返回本节课详情。
+
+验证：
+
+- `corepack pnpm run check`
+- 3 道题完整答完并展示点评。
+
+## 阶段 G · 测验语音答题
+
+目标：实现产品“语音优先”的测验回答方式。
+
+- [ ] 复用 `utils/recorder.ts` 支持短语音答题。
+- [ ] 语音答案最长 60 秒。
+- [ ] 上传短语音并转写为文字。
+- [ ] 转写文本进入 `gradeQuizAnswer`。
+- [ ] 转写失败时允许切换文字答题。
+
+验证：
+
+- `corepack pnpm run check`
+- 真机语音答题至少完成一题。
+- 语音失败后文字 fallback 可用。
+
+## 阶段 H · 收尾与试用闸门
+
+目标：让课程学习模式可以小范围真实试用。
+
+- [ ] 全主路径补 loading、empty、error、success 状态。
+- [ ] 整理课堂输出 prompt 与测验 prompt。
+- [ ] 根据真实测试音频调整 ASR / LLM 错误处理。
+- [ ] 更新 `NEXT_WINDOW.md` 与 `session-notes.md`。
+- [ ] 里程碑审阅：GPT-5.5 与 Opus 分别独立审阅。
+
+验证：
+
+- 新建库 → 录音 → 转写 → 总结 → 测验文字 / 语音答题 全链路通过。
 - 微信开发者工具 + 真机主路径走查通过。
 
 ## 每次交接模板
 
-执行 Agent 完成一个任务组后,按此格式交接:
+执行 Agent 完成一个任务组后，按此格式交接：
 
 ```md
 ## 目标

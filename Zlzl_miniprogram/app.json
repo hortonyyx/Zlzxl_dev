@@ -19,7 +19,11 @@
     "navigationBarTextStyle": "black",
     "backgroundColor": "#f6f7f9"
   },
+  "permission": {
+    "scope.record": {
+      "desc": "用于录制课堂音频并生成课后总结和测验"
+    }
+  },
   "style": "v2",
   "sitemapLocation": "sitemap.json"
 }
-

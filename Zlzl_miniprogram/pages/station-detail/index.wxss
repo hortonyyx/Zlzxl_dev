@@ -58,3 +58,20 @@
 .gray {
   color: #6b7280;
 }
+
+.primary-action,
+.secondary-action {
+  border-radius: 12rpx;
+  font-size: 28rpx;
+  line-height: 80rpx;
+}
+
+.primary-action {
+  background: #111827;
+  color: #ffffff;
+}
+
+.secondary-action {
+  background: #e5e7eb;
+  color: #111827;
+}

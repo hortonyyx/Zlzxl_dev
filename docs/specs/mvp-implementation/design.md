@@ -1,136 +1,211 @@
-# 设计 · 第一版 MVP 落地执行方案
+# 设计 · 上课模式最小闭环 MVP
 
-> 本文描述落地顺序与协作架构。具体产品细节见
-> [class-mode/design.md](../class-mode/design.md)。
-
-## 文档层级
-
-本项目执行时按下面优先级读取事实来源:
-
-1. `AGENTS.md` / `CLAUDE.md`:编码硬规则。
-2. `docs/ai/START_HERE.md`、`context-map.md`、`vibe-coding-system.md`:
-   AI 协作流程。
-3. `docs/product/concept.md`、`architecture.md`、`prototype.html`:
-   产品与信息架构事实来源。
-4. `docs/specs/mvp-implementation/`:第一版 MVP 总控落地方案。
-5. `docs/specs/class-mode/`:上课 + 学习双模式的详细功能执行包。
-
-若出现冲突,先暂停并记录,不要靠实现者自行扩大范围。
+> 本文是当前实现依据。旧的 `class-mode` 执行包仍可作为产品长期方向参考，
+> 但本轮编码以本目录的总控包为准。
 
 ## 落地策略
 
-采用"先闭环、后硬化"的两层策略:
+采用“真实上课链路优先，长期学习能力后置”的策略：
 
-- **阶段 0/1**:真实 UI + mock 领域服务。重点验证产品体验:脉络、delta、
-  便签、跨课关联、复习回写。
-- **阶段 2+**:把 mock 服务逐步替换为微信云开发、真录音、ASR、LLM。
+- 第一阶段先跑通一节课：录音、转写、课堂输出、测验。
+- 学习脉络、今日学习、跨课复习、状态色等能力暂不接入验收。
+- 服务层仍保留 mock / cloud 开关，便于在云配置未就绪时继续开发 UI。
 
-这样可以把"产品循环是否有价值"和"复杂工程是否跑通"拆开验证。
+## 页面与职责
 
-## 代码架构边界
+页面只负责渲染、用户交互和生命周期，不直接调用 `wx.request`、`wx.cloud`、
+storage。
 
-页面:
+| 页面 | 本轮职责 |
+|---|---|
+| `library-list` | 展示课程学习库，进入库，新建库 |
+| `library-create` | 课程学习 + 库名；资料上传暂不做 |
+| `library-detail` | 空库态 / 课程记录列表 / 开始上课 |
+| `class-record` | 10 分钟录音、结束课、提交处理 |
+| `class-processing` | 轮询课堂处理状态 |
+| `node-summary` | 展示课堂输出、转写入口、开始测验 |
+| `station-detail` | 单节课详情，复用“站点详情”入口语义 |
+| `quiz-run` | 问答题；文字答题 + 语音答题 |
 
-- 只负责渲染、用户交互和生命周期。
-- 不直接调用 `wx.request`、`wx.cloud`、storage。
-- 通过 service 获取数据和提交动作。
+暂时保留但不作为本轮主路径：
 
-服务:
+- `study-node`
+- `flashcard-run`
+- `node-result`
 
-- `Zlzl_miniprogram/services/cloud.ts`:统一云函数 / mock 调用入口。
-- `library.ts`:库列表、新建库、demo / 空库数据。
-- `mailuo.ts`:学习脉络读取与 mock 更新。
-- `class-session.ts`:上课线会话和处理状态。
-- `study-session.ts`:今日学习、学习节点计划。
-- `module.ts`:测验 / 闪卡运行与评分。
-- `knowledge.ts`:知识点、掌握信号、状态规则。
+## 服务层
 
-类型:
+建议服务边界：
 
-- 共享领域类型放 `Zlzl_miniprogram/types/learning.ts`。
-- 页面局部展示类型尽量靠近页面,不要提前抽象。
+- `services/cloud.ts`：统一 `callCloud`，保留 mock / cloud 开关。
+- `services/library.ts`：库列表、新建库、读取库详情。
+- `services/class-session.ts`：创建课堂、提交录音、轮询处理状态、读取课堂节点。
+- `services/quiz.ts` 或 `services/module.ts`：读取测验、提交文字 / 语音答案。
+- `utils/recorder.ts`：课堂录音与短语音答题录音封装。
+- `utils/storage.ts` / `utils/toast.ts`：继续承接平台封装。
 
-状态:
+页面不得直接散落 `wx.getRecorderManager`、`wx.cloud.uploadFile`、storage 等调用；
+如确需平台 API，先封装到 `utils/` 或 `services/`。
 
-- 第一版可先用页面 data + service 内 mock store。
-- 当多个页面共享当前库 / 当前节点时,再引入 `stores/library-store.ts`、
-  `stores/session-store.ts`。
+## 数据模型
 
-组件:
+类型放在 `Zlzl_miniprogram/types/learning.ts` 或拆出更准确的课堂类型文件。
+本轮最小字段如下：
 
-- 只抽复用且稳定的展示块:库卡片、脉络路径、状态行、总结段落、测验题、
-  闪卡。
-- 阶段 0 不追求组件体系完整,优先保证闭环能走。
+```ts
+interface Library {
+  _id: string;
+  name: string;
+  mode: 'course';
+  createdAt: number;
+  classCount: number;
+}
 
-## Mock 服务设计
+interface ClassSession {
+  _id: string;
+  libraryId: string;
+  status: 'recording-uploaded' | 'transcribing' | 'summarizing' |
+    'generating-quiz' | 'done' | 'failed';
+  recordingFileId?: string;
+  nodeId?: string;
+  error?: string;
+  updatedAt: number;
+}
 
-mock 服务要模拟真实数据形态,而不是写死页面文案:
+interface ClassNode {
+  _id: string;
+  libraryId: string;
+  classIndex: number;
+  title: string;
+  createdAt: number;
+  recordingFileId?: string;
+  transcript?: string;
+  summary?: ClassSummary;
+  quiz?: QuizQuestion[];
+  quizState: 'not-started' | 'in-progress' | 'done';
+}
 
-- 预置 demo 库:至少 3 节课,展示绿 / 黄 / 灰与跨课便签。
-- 新建空库:无 station,但有"脉络会长大"空状态。
-- 手动课堂输入:提交文本后生成一个 class node、若干知识点、三段式总结、
-  Mailuo delta。
-- 第二次课堂输入:必须复用至少一个旧 KnowledgePoint ID,并生成跨课关联。
-- 今日学习:从黄点和到期绿点生成 plan,每项带 rationale。
-- 模块结果:测验 / 闪卡写 MasterySignal,重新计算 status 和 station 颜色。
+interface ClassSummary {
+  full: string;
+  keyPoints: string[];
+  coreQuestions: string[];
+}
 
-阶段 0 的 mock 可以确定性生成,不需要真正调用 LLM。重点是验证交互和数据
-闭环。
+interface QuizQuestion {
+  _id: string;
+  stem: string;
+  referenceAnswer: string;
+  gradingRubric?: string;
+}
 
-## 页面落地顺序
+interface QuizAnswer {
+  questionId: string;
+  mode: 'text' | 'voice';
+  text: string;
+  voiceFileId?: string;
+  passed?: boolean;
+  score?: number;
+  feedback?: string;
+}
+```
 
-第一轮页面不需要一次做满 12 屏,但必须覆盖主路径:
+## 云函数
 
-1. `library-list`:库列表 + demo 库 + 新建入口。
-2. `library-create`:课程学习新建 + 自主学习占位。
-3. `library-detail`:空库 / 脉络 / 今日学习 / 开始上课入口。
-4. `class-record`:阶段 0 先做"手动输入课堂内容"入口;真录音后续替换。
-5. `class-processing`:mock 进度。
-6. `node-summary`:三段式课堂总结 + 纠错入口占位 + 开始测验。
-7. `study-node`:今日学习编排。
-8. `quiz-run` / `flashcard-run`:模块执行。
-9. `node-result`:信号回写结果 + 回脉络。
-10. `station-detail`:单站详情和完整总结 / 转写入口占位。
+第一版云函数可以保持少而清楚：
 
-## Codex / Claude 协作边界
+- `submitClass`
+  - 输入：`libraryId`、`recordingFileId`。
+  - 输出：`sessionId`。
+  - 行为：创建 `ClassSession`，准备处理。
 
-推荐按文件组分工,同一阶段内避免重叠:
+- `advanceClass`
+  - 输入：`sessionId`。
+  - 输出：`status`、完成时返回 `nodeId`。
+  - 行为：推进转写、总结、测验生成。
+  - 要求：幂等；重复调用不能重复创建课堂节点。
 
-- Codex 优先:类型、service 契约、状态规则、检查修复、审阅 Claude 改动。
-- Claude 优先:UI 页面、WXML/WXSS 还原原型、文案与空状态、审阅 Codex 改动。
+- `gradeQuizAnswer`
+  - 输入：`nodeId`、`questionId`、`answerText`。
+  - 输出：`score`、`passed`、`feedback`。
+  - 行为：用 LLM 点评 / 判分。
 
-具体执行时以用户指定为准。无论谁实现,另一个模型家族审阅:
+- `transcribeVoiceAnswer`（可选）
+  - 输入：短语音 `fileID`。
+  - 输出：文字。
+  - 若 ASR 封装统一，也可并入 `gradeQuizAnswer` 前的 service 流程。
 
-- Claude 实现 → Codex / GPT 家族审阅。
-- Codex 实现 → Claude / Opus 家族审阅。
+## 处理流水线
 
-交接必须使用 `docs/ai/agent-protocol.md` 的格式,写清楚当前任务、涉及文件、
-验证和审阅重点。
+`class-processing` 轮询 `advanceClass` 或轮询 `getClassSession`：
 
-## 风险控制
+1. 上传录音完成。
+2. 转写课堂录音。
+3. 生成课堂输出。
+4. 生成课后测验。
+5. 完成后进入 `node-summary`。
 
-- **范围膨胀**:阶段 0 不接真 ASR / LLM / 云开发。
-- **文档漂移**:涉及范围或架构变化,同步更新本执行包或 `class-mode` 包。
-- **页面过重**:业务流程放 services,页面只拼状态和事件。
-- **mock 失真**:mock 数据结构必须贴近 design.md 的实体,避免后续迁移重写。
-- **模型冲突**:不要两个 Agent 同时改同一页面组;开始前先看 `git status`。
-- **录音风险**:真录音阶段单独做,真机验证前不宣称完成。
+失败时进入错误态，提供“重试处理”和“返回课堂记录”。
 
-## 验证方式
+## 录音策略
 
-自动:
+课堂录音：
+
+- 第一版最长 10 分钟。
+- 优先前台录音。
+- 可先单段录音，不做 45 分钟分段续录。
+- 到达 10 分钟自动停止并提示提交。
+- 初始格式优先使用微信录音常见配置：`mp3`、约 16 kHz、单声道语音质量；
+  若目标 ASR 服务要求不同，以 ASR 兼容格式为准。
+- 文件命名建议：`class-recordings/{libraryId}/{sessionId或timestamp}.mp3`。
+- `recordingFileId` 指云存储永久文件 ID；本地临时文件只在上传前使用。
+- 10 分钟版本先使用微信云存储单文件上传；如真机文件大小或网络失败率不可接受，
+  再升级分段 / 断点续传。
+- 上传 UI 至少要有：上传中、失败重试、取消返回。
+- 真机验证必须覆盖：授权、开始、停止、上传、拒绝授权、录音失败。
+
+语音答题：
+
+- 短录音，建议最长 60 秒。
+- 上传后转写为文字。
+- 转写失败时允许用户改用文字回答。
+
+## Mock 兜底
+
+在云环境 / ASR / LLM 未配置前，mock 路径应支持：
+
+- 手动输入课堂文本替代录音转写。
+- 固定或确定性生成课堂输出。
+- 固定或确定性生成 3 道测验题。
+- 文字答案用简单规则或 mock 点评返回。
+
+mock 只用于开发兜底，不作为本轮最终验收替代。
+`transcriptFallback` 仅表示开发 / 失败兜底的手动课堂文本，不代表课程资料上传。
+
+## 风险
+
+- 微信录音格式与 ASR 服务兼容性需尽早实测。
+- 云函数处理长任务可能受时长限制，`advanceClass` 需要可重入。
+- 密钥必须只放云函数环境变量。
+- 语音答题转写失败不能阻断测验，必须能切回文字。
+- 旧页面中学习脉络 / 今日学习入口较多，调整时要避免留下误导主路径。
+
+## 验证
+
+自动：
 
 ```bash
 corepack pnpm run check
 ```
 
-微信开发者工具:
+微信开发者工具：
 
-- 打开仓库根目录,不是 `Zlzl_miniprogram` 子目录。
-- 走库列表 → demo 库 → 今日学习 → 模块 → 结果。
-- 走新建库 → 空库 → 手动输入课堂内容 → 总结 → 脉络更新。
+- 库列表 → 新建库 → 空库 → 上第一节课。
+- 录音 → 上传 → 处理页 → 总结页。
+- 总结页 → 开始测验 → 文字答题 → 点评。
 
-真机:
+真机：
 
-- 阶段 0/1 可不要求。
-- 真录音阶段必须验证 45 分钟前台录音、切后台 / 锁屏 / 来电中断后的分段不丢。
+- 10 分钟课堂录音。
+- 录音授权拒绝 / 重新授权。
+- 语音答题短录音。
+- 网络失败或处理失败后的重试体验。

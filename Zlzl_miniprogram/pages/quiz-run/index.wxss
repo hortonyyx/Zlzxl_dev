@@ -53,3 +53,22 @@
   font-size: 30rpx;
   line-height: 88rpx;
 }
+
+.secondary-action {
+  border-radius: 12rpx;
+  background: #e5e7eb;
+  color: #111827;
+  font-size: 28rpx;
+  line-height: 80rpx;
+}
+
+.feedback {
+  display: block;
+  margin-top: 16rpx;
+  padding: 18rpx;
+  border-radius: 10rpx;
+  background: #eef2ff;
+  color: #3730a3;
+  font-size: 24rpx;
+  line-height: 1.5;
+}

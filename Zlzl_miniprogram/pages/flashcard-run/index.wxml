@@ -1,17 +1,4 @@
 <view class="page">
-  <view wx:if="{{loading}}" class="description">加载中...</view>
-  <block wx:else>
-    <text class="title">{{title}}</text>
-    <text class="description">{{currentIndex + 1}} / {{cards.length}}</text>
-    <view wx:if="{{currentCard}}" class="panel">
-      <text class="panel-title">{{currentCard.front}}</text>
-      <text wx:if="{{revealed}}" class="description">{{currentCard.back}}</text>
-      <button wx:if="{{!revealed}}" class="primary-action" bindtap="revealCard">翻卡</button>
-      <view wx:else class="actions">
-        <button class="secondary-action" data-pass="false" bindtap="rateCard">还不稳</button>
-        <button class="primary-action inline" data-pass="true" bindtap="rateCard">记得</button>
-      </view>
-    </view>
-    <view wx:else class="description">正在写回结果...</view>
-  </block>
+  <text class="title">{{title}}</text>
+  <text class="description">闪卡不在本轮 MVP 主路径中。</text>
 </view>

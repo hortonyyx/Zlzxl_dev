@@ -1,14 +1,4 @@
 <view class="page">
-  <view wx:if="{{loading}}" class="description">加载中...</view>
-  <block wx:else>
-    <text class="title">{{title}}</text>
-    <text class="description">模块: {{moduleType}} · 信号已回写到知识点状态</text>
-    <view wx:for="{{results}}" wx:key="knowledgePointId" class="panel">
-      <text class="panel-title">{{item.pass ? '通过' : '待巩固'}}</text>
-      <text class="description">{{item.previousStatus}} → {{item.nextStatus}}</text>
-      <text class="description">{{item.comment}}</text>
-    </view>
-    <button wx:if="{{moduleType === 'quiz'}}" class="secondary-action" bindtap="goFlashcard">继续闪卡</button>
-    <button class="primary-action" bindtap="backToLibrary">回脉络看变化</button>
-  </block>
+  <text class="title">{{title}}</text>
+  <text class="description">学习结果页暂不在本轮 MVP 主路径中。</text>
 </view>

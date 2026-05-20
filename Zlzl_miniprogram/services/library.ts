@@ -27,7 +27,7 @@ function mockCreateLibrary(request: { name: string; mode: LibraryMode }): Librar
     _id: createMockId('lib'),
     name: request.name,
     createdAt: getMockNow(),
-    mode: request.mode,
+    mode: 'course',
     classCount: 0,
   };
 
@@ -36,11 +36,11 @@ function mockCreateLibrary(request: { name: string; mode: LibraryMode }): Librar
     _id: createMockId('mailuo'),
     libraryId: library._id,
     updatedAt: getMockNow(),
-    latestUpdateNote: '第一节课后,这里会显示脉络如何长大。',
+    latestUpdateNote: '第一节课后,这里会显示课堂输出和测验入口。',
     stations: [],
     stickyNotes: {
       unresolved: [],
-      observations: ['空库会先用手动课堂内容跑通 MVP 闭环。'],
+      observations: ['空库先跑通:录音/转写 -> 总结 -> 测验。'],
     },
   });
 

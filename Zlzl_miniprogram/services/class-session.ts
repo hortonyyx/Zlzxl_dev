@@ -1,7 +1,12 @@
-import type { ClassSession, ClassSessionStatus, KnowledgePoint, LearningNode, MailuoStation } from '../types/learning';
+import type { ClassSession, ClassSessionStatus, LearningNode, QuizQuestion } from '../types/learning';
 import { callCloud } from './cloud';
-import { refreshStationStatuses } from './knowledge';
 import { createMockId, getMockNow, mockStore } from './mock-store';
+
+interface SubmitClassRequest {
+  libraryId: string;
+  recordingFileId?: string;
+  transcriptFallback?: string;
+}
 
 interface SubmitManualClassRequest {
   libraryId: string;
@@ -23,7 +28,15 @@ interface AdvanceClassResponse {
 }
 
 export function submitManualClass(libraryId: string, content: string): Promise<SubmitManualClassResponse> {
-  return callCloud('submitClass', { libraryId, content }, mockSubmitManualClass);
+  return submitClass(libraryId, undefined, content);
+}
+
+export function submitClass(
+  libraryId: string,
+  recordingFileId?: string,
+  transcriptFallback?: string,
+): Promise<SubmitManualClassResponse> {
+  return callCloud('submitClass', { libraryId, recordingFileId, transcriptFallback }, mockSubmitClass);
 }
 
 export function advanceClass(sessionId: string): Promise<AdvanceClassResponse> {
@@ -34,33 +47,44 @@ export function getClassSession(sessionId: string): Promise<ClassSession | null>
   return callCloud('getClassSession', { sessionId }, mockGetClassSession);
 }
 
-function mockSubmitManualClass(request: SubmitManualClassRequest): SubmitManualClassResponse {
+function mockSubmitClass(request: SubmitClassRequest): SubmitManualClassResponse {
   const now = getMockNow();
   const classIndex =
     mockStore.nodes.filter((node) => node.libraryId === request.libraryId && node.type === 'class').length + 1;
   const nodeId = createMockId('node-class');
-  const pointIds = upsertClassKnowledgePoints(request.libraryId, nodeId, classIndex);
+  const transcript =
+    request.transcriptFallback?.trim() ||
+    `mock 转写:第 ${classIndex} 节课围绕课程主线展开,老师反复比较概念、案例和考试中的论述方式。`;
+  const keyPoints = buildMockKeyPoints(classIndex);
+  const coreQuestions = buildMockCoreQuestions(classIndex);
+  const quiz = buildMockQuiz(classIndex, coreQuestions);
   const node: LearningNode = {
     _id: nodeId,
     libraryId: request.libraryId,
     type: 'class',
     createdAt: now,
+    title: `第 ${classIndex} 节课`,
     classIndex,
-    transcript: request.content,
+    recordingFileId: request.recordingFileId,
+    recordingFileIds: request.recordingFileId ? [request.recordingFileId] : [],
+    transcript,
     summary: {
-      full: `第 ${classIndex} 节课已用 mock 服务整理。核心内容会沉淀进知识点池,并更新学习脉络。`,
-      points: ['课程主题已提炼为稳定知识点', '新课会复用旧知识点 ID 形成跨课关联'],
-      coreQuestions: ['这节课和上次未解决的问题如何接上?'],
+      full: `第 ${classIndex} 节课已整理完成。这份 mock 输出模拟真实链路中的 ASR 转写和 LLM 总结,会先帮助你回看本节课讲了什么,再进入课后测验。`,
+      points: keyPoints,
+      keyPoints,
+      coreQuestions,
     },
-    markedQuestions: [{ atMs: 0, note: 'mock: 课中疑问会让对应知识点变黄' }],
+    quiz,
+    quizState: 'not-started',
   };
   const session: ClassSession = {
     _id: createMockId('session'),
     libraryId: request.libraryId,
     status: 'done',
+    recordingFileId: request.recordingFileId,
     nodeId,
     updatedAt: now,
-    steps: ['transcribing', 'summarizing', 'extracting', 'rewriting'].map((name) => ({
+    steps: ['recording-uploaded', 'transcribing', 'summarizing', 'generating-quiz'].map((name) => ({
       name: name as ClassSessionStatus,
       attempts: 1,
       status: 'done',
@@ -75,7 +99,7 @@ function mockSubmitManualClass(request: SubmitManualClassRequest): SubmitManualC
     library.classCount = classIndex;
   }
 
-  updateMailuoAfterClass(request.libraryId, nodeId, classIndex, pointIds);
+  ensureLegacyMailuoRecord(request.libraryId, nodeId, classIndex);
   return { sessionId: session._id, nodeId };
 }
 
@@ -92,57 +116,7 @@ function mockAdvanceClass(request: AdvanceClassRequest): AdvanceClassResponse {
   return { status: session.status, nodeId: session.nodeId };
 }
 
-function upsertClassKnowledgePoints(libraryId: string, nodeId: string, classIndex: number): string[] {
-  const existingPoints = mockStore.knowledgePoints.filter((point) => point.libraryId === libraryId);
-  const mainPoint = existingPoints[0] ?? createKnowledgePoint(libraryId, nodeId, '课程主线问题', ['主线', '核心问题'], []);
-  const bridgePoint =
-    classIndex > 1 && existingPoints[1]
-      ? existingPoints[1]
-      : createKnowledgePoint(libraryId, nodeId, '概念如何连接课堂案例', ['案例连接'], [mainPoint._id]);
-  const newPoint = createKnowledgePoint(libraryId, nodeId, `第 ${classIndex} 节课的新概念`, ['本节新概念'], [
-    mainPoint._id,
-    bridgePoint._id,
-  ]);
-
-  mainPoint.relatedIds = Array.from(new Set([...mainPoint.relatedIds, bridgePoint._id, newPoint._id]));
-  bridgePoint.relatedIds = Array.from(new Set([...bridgePoint.relatedIds, mainPoint._id, newPoint._id]));
-
-  mockStore.signals.push({
-    _id: createMockId('sig'),
-    knowledgePointId: mainPoint._id,
-    sourceNodeId: nodeId,
-    sourceModule: 'class-record',
-    type: 'mark-question',
-    value: null,
-    timestamp: getMockNow(),
-  });
-  mainPoint.status = 'yellow';
-
-  return [mainPoint._id, bridgePoint._id, newPoint._id];
-}
-
-function createKnowledgePoint(
-  libraryId: string,
-  nodeId: string,
-  name: string,
-  aliases: string[],
-  relatedIds: string[],
-): KnowledgePoint {
-  const point: KnowledgePoint = {
-    _id: createMockId('kp'),
-    libraryId,
-    name,
-    aliases,
-    relatedIds,
-    firstSeenNodeId: nodeId,
-    status: 'gray',
-    lastReviewedAt: null,
-  };
-  mockStore.knowledgePoints.push(point);
-  return point;
-}
-
-function updateMailuoAfterClass(libraryId: string, nodeId: string, classIndex: number, pointIds: string[]): void {
+function ensureLegacyMailuoRecord(libraryId: string, nodeId: string, classIndex: number): void {
   const now = getMockNow();
   let mailuo = mockStore.mailuos.find((item) => item.libraryId === libraryId);
   if (!mailuo) {
@@ -150,29 +124,52 @@ function updateMailuoAfterClass(libraryId: string, nodeId: string, classIndex: n
       _id: createMockId('mailuo'),
       libraryId,
       updatedAt: now,
-      latestUpdateNote: '',
+      latestUpdateNote: '本轮 MVP 暂不生成学习脉络,这里仅保留兼容记录。',
       stations: [],
       stickyNotes: { unresolved: [], observations: [] },
     };
     mockStore.mailuos.push(mailuo);
   }
 
-  const station: MailuoStation = {
+  mailuo.stations.push({
     nodeId,
     classIndex,
     title: `第 ${classIndex} 节课`,
     status: 'gray',
-    knowledgePointIds: pointIds,
-  };
-  mailuo.stations.push(station);
+    knowledgePointIds: [],
+  });
   mailuo.updatedAt = now;
-  mailuo.latestUpdateNote =
-    classIndex > 1
-      ? '这节课复用了旧知识点 ID,脉络已经能展示跨课关联。'
-      : '第一节课已建立起点,后续课堂会沿着这里继续生长。';
+  mailuo.latestUpdateNote = '本节课的总结和测验已生成;学习脉络暂不进入本轮主路径。';
   mailuo.stickyNotes = {
-    unresolved: ['mock 标记的问题会优先进入今日学习。'],
-    observations: classIndex > 1 ? ['本次课堂和上次的主线问题接上了。'] : ['先完成一次测验,状态色会回写到这里。'],
+    unresolved: [],
+    observations: ['下一步先完成本节课测验,不进入今日学习编排。'],
   };
-  refreshStationStatuses(libraryId);
+}
+
+function buildMockKeyPoints(classIndex: number): string[] {
+  return [
+    `第 ${classIndex} 节课的核心概念已经从课堂内容中提炼出来。`,
+    '课堂例子和老师强调的比较关系会进入课后测验。',
+    '先确认本节课是否听懂,长期复习和脉络后续再接。',
+  ];
+}
+
+function buildMockCoreQuestions(classIndex: number): string[] {
+  return [
+    `第 ${classIndex} 节课最重要的概念是什么?`,
+    '老师用哪些例子解释了这个概念?',
+    '这个概念在考试论述中可能怎么展开?',
+  ];
+}
+
+function buildMockQuiz(classIndex: number, coreQuestions: string[]): QuizQuestion[] {
+  return coreQuestions.map((question, index) => ({
+    _id: createMockId('quiz'),
+    stem: question,
+    referenceAnswer: `参考回答应包含第 ${classIndex} 节课的概念解释、课堂例子和自己的判断。`,
+    gradingRubric: '能说清概念含义,能引用课堂例子,能形成完整句子。',
+    prompt: question,
+    expectedAnswer: `参考回答应包含第 ${classIndex} 节课的概念解释、课堂例子和自己的判断。`,
+    knowledgePointId: '',
+  }));
 }

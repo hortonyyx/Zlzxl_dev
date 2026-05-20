@@ -70,11 +70,14 @@
 在 [docs/reviews/](../reviews/) 里检查：
 
 - [ ] 本轮实现已被**另一个模型家族**审过。
+- [ ] 审阅不是只留在聊天里，已经落成 `docs/reviews/*.md` 文件。
 - [ ] 审阅原文归档为 `YYYY-MM-DD_<目标>_<审阅方>_review.md`。
 - [ ] 审阅意见的处置（已合并 / 待办 / 不采纳）写在文件"处置摘要"段。
 - [ ] 阻塞项已修；非阻塞项进 §5。
 - [ ] [docs/reviews/README.md](../reviews/README.md) "已归档"列表里
       追加一行。
+- [ ] 审阅 Agent 已为审阅节点单独 commit；修订 / bugfix 没混入审阅 commit。
+- [ ] 审阅提出的修订项已进入下一轮开发计划或 session-notes 待办。
 
 ## 收工自检（60 秒过一遍）
 

@@ -4,15 +4,14 @@
     <text class="title">第 {{node.classIndex}} 节课</text>
     <text class="description">{{node.summary.full}}</text>
     <view class="panel">
-      <text class="panel-title">知识提炼</text>
+      <text class="panel-title">要点提炼</text>
       <text wx:for="{{node.summary.points}}" wx:key="*this" class="item">· {{item}}</text>
     </view>
     <view class="panel">
-      <text class="panel-title">你的状态</text>
-      <view wx:for="{{points}}" wx:key="_id" class="point">
-        <text>{{item.name}}</text>
-        <text class="{{item.status}}">{{item.status}}</text>
-      </view>
+      <text class="panel-title">测验状态</text>
+      <text class="item">{{node.quizState === 'done' ? '已完成' : '待完成'}}</text>
     </view>
+    <button class="primary-action" bindtap="openSummary">查看完整总结</button>
+    <button class="secondary-action" bindtap="startQuiz">做课后测验</button>
   </block>
 </view>

@@ -1,6 +1,33 @@
 <view class="page">
   <text class="title">{{title}}</text>
-  <text class="description">阶段 2 仍用文本模拟课堂输入,不接真录音。</text>
-  <textarea class="textarea" value="{{content}}" bindinput="onContentInput" maxlength="-1" />
-  <button class="primary-action" loading="{{submitting}}" bindtap="submitClass">提交并生成总结</button>
+  <text class="description">先支持前台录音 {{maxDurationText}}，云上传和 ASR 会在后续阶段接入。</text>
+
+  <view class="record-panel">
+    <view class="record-head">
+      <text class="record-label">{{recording ? '录音中' : recordedFile ? '已完成录音' : '准备录音'}}</text>
+      <text class="record-dot {{recording ? 'on' : ''}}">●</text>
+    </view>
+    <text class="timer">{{elapsedText}}</text>
+    <view class="meter">
+      <view class="meter-fill" style="width: {{elapsedMs * 100 / 600000}}%;"></view>
+    </view>
+    <text class="hint">到 {{maxDurationText}} 会自动停止。本阶段录音只保存在本地临时文件。</text>
+
+    <button wx:if="{{!recording}}" class="primary-action" bindtap="startRecording">开始录音</button>
+    <button wx:else class="danger-action" loading="{{stopping}}" bindtap="stopRecording">结束课</button>
+
+    <view wx:if="{{recordedFile}}" class="file-card">
+      <text class="panel-title">本地录音文件</text>
+      <text class="description">时长 {{recordedDurationText}} · 大小 {{recordedFileSizeText}}</text>
+      <text class="path">{{recordedFile.tempFilePath}}</text>
+      <button class="secondary-action" loading="{{submitting}}" bindtap="submitRecordedClass">用录音进入 mock 处理</button>
+    </view>
+  </view>
+
+  <view class="fallback">
+    <text class="panel-title">手动文本 fallback</text>
+    <text class="description">录音或真机能力不可用时，仍可用文本跑通课堂输出和测验。</text>
+    <textarea class="textarea" value="{{content}}" bindinput="onContentInput" maxlength="-1" />
+    <button class="secondary-action" loading="{{submitting}}" bindtap="submitClass">提交文本并生成总结</button>
+  </view>
 </view>

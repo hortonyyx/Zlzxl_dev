@@ -1,4 +1,10 @@
 {
-  "desc": "Zlzl sitemap 配置"
+  "desc": "Zlzl sitemap 配置",
+  "rules": [
+    {
+      "action": "allow",
+      "page": "*"
+    }
+  ]
 }
 
