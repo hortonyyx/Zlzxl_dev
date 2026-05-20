@@ -192,7 +192,7 @@ ASR、LLM)。
 
 **留下了什么**(进阶段 3 前要回来看):
 
-- D 类非阻塞项(见 `docs/reviews/2026-05-20_mvp-stage2_opus_review.md`):
+- D 类非阻塞项(见 `docs/reviews/results/2026-05-20_mvp-stage2_opus_review.md`):
   - library-list 卡片"掌握分布微条"是 3 段固定色块,不反映实际比例。
   - 路由栈出现重复 `library-detail`,系统返回键会回到 stale 页。
   - node-summary 的"开始课后测验"复用了 `planStudy`,语义被并入今日学习,
@@ -289,7 +289,7 @@ LLM 凭据可在阶段 E 前提供，但越早越好。
 - 用户已在微信开发者工具走完阶段 A/B/C 后的 mock 主路径，反馈“没问题”。
 - 用户明确授权调用 DeepSeek 做外部交叉审阅。
 - DeepSeek 审阅已归档：
-  `docs/reviews/2026-05-20_mvp-scope-deepseek_review.md`。
+  `docs/reviews/results/2026-05-20_mvp-scope-deepseek_review.md`。
 - 已采纳审阅意见：
   - 阶段 D 拆为 D1 录音基础、D2 云存储上传、D3 上传后课堂提交。
   - 增加 C.5 旧学习模式入口封存任务。
@@ -372,7 +372,7 @@ appid: wx079dcb069cc3c195
 
 Claude 审阅：
 
-- 已创建 `docs/reviews/2026-05-20_mvp-class-loop_claude_review_request.md`。
+- 已创建 `docs/reviews/requests/2026-05-20_mvp-class-loop_claude_review_request.md`。
 - 审阅包覆盖：执行包、阶段 A/B/C/C.5/D1 已执行部分、DeepSeek 审阅采纳项、
   sitemap 修复和下一阶段 D2 风险。
 - 下一步按约定应先把该审阅请求交给 Claude / Opus 家族审阅；无阻塞后再进入 D2。
@@ -404,7 +404,7 @@ Claude 审阅：
 
 Claude / Opus 审阅结果已落档：
 
-- `docs/reviews/2026-05-20_mvp-class-loop_claude_review.md`
+- `docs/reviews/results/2026-05-20_mvp-class-loop_claude_review.md`
 
 结论：**不建议在不修 P0 的情况下进入 D2**。
 
@@ -423,3 +423,275 @@ Claude / Opus 审阅结果已落档：
 - 录音占位路径和手动文本 fallback / `transcriptFallback` 语义分离。
 
 修完 D1.1 且检查 / 真机验证通过后，再进入 D2.1 云环境与上传 service。
+
+## 2026-05-20 D1.1 录音阻塞修复 checkpoint
+
+D1.1 代码修复已完成，仍需真机验证和另一个模型家族交叉审阅后再进入 D2.1。
+
+- `utils/recorder.ts`
+  - 课堂录音的微信 `duration` 增加 5 秒保护窗，由页面 10 分钟 timer 主动 stop，降低到点双停竞争。
+  - 新增运行时事件订阅，`onError` / `onInterruptionBegin` 能通知页面停止计时并退出录音中状态。
+  - `onStop` 在没有 pending stop 时也会把文件通过运行时事件交给页面，兜住微信自动 stop 先到的边缘情况。
+  - 曾拒绝麦克风权限时改走 `wx.openSetting` 恢复路径。
+- `class-record`
+  - `recordTimer` / `recordStartedAt` 已移到 Page 实例字段。
+  - WXML 进度条改用 `progressPercent`，不再写死 `600000`。
+  - 录音占位提交改传 `localRecordingHint`，按钮文案改为“用录音占位进入 mock 处理”。
+- `services/class-session.ts`
+  - `transcriptFallback` 只服务手动文本 fallback。
+  - mock 录音路径使用 `localRecordingHint` 生成可区分的 mock 转写和总结，并保留本地录音时长 / 大小 / 临时路径信息。
+
+验证：
+
+- `corepack pnpm run check` 通过。
+
+仍需微信开发者工具 / 真机检查：
+
+- 真机录制 1 分钟手动停止后能显示本地文件信息。
+- 真机录制到 10 分钟自动停止后不丢本地文件信息。
+- 录音中断 / 系统错误后页面不再停留在“录音中”。
+- 拒绝麦克风权限后再次点击能引导打开设置并可恢复。
+- 录音占位提交和手动文本提交在 mock 转写 / 总结文案上可区分。
+
+## 2026-05-20 reviews 目录分层与 D1.1 审阅请求
+
+按用户要求，`docs/reviews/` 已分为两个子目录：
+
+- `docs/reviews/requests/`：开发 Agent 完成小节点后写入审阅请求包，方便审阅 Agent 直接知道该看哪些。
+- `docs/reviews/results/`：审阅 Agent 产出的审阅结果归档，包含原始审阅意见和处置摘要。
+
+已迁移现有文档：
+
+- 旧 `*_review_request.md` 移入 `docs/reviews/requests/`。
+- 旧 `*_review.md` 移入 `docs/reviews/results/`。
+- `docs/reviews/README.md` 已改成请求 / 结果双索引。
+
+本轮 D1.1 审阅请求已落档：
+
+- `docs/reviews/requests/2026-05-20_mvp-d1-1-recorder_claude_review_request.md`
+
+已同步相关管理文档：
+
+- `docs/ai/vibe-coding-system.md`
+- `docs/ai/review-checklist.md`
+- `docs/ai/agent-protocol.md`
+- `docs/ai/wrap-up.md`
+- `docs/ai/NEXT_WINDOW.md`
+
+当时下一步是交给 Claude / Opus 家族按请求包审阅；审阅结果随后已落档。
+
+## 2026-05-20 D1.1 Claude 审阅完成与小修
+
+D1.1 Claude 审阅结果已落档：
+
+- `docs/reviews/results/2026-05-20_mvp-d1-1-recorder_claude_review.md`
+
+审阅结论：
+
+- 无必须先修的代码层阻塞项。
+- 可在真机验证通过后进入 D2.1。
+- 真机验证仍是硬闸门，尤其要看中断后是否晚到 `onStop`。
+
+已按审阅意见完成一轮小修：
+
+- `utils/recorder.ts`
+  - `onError` / `onInterruptionBegin` 后设置 `suppressNextStop`，丢弃微信底层晚到的 `onStop`。
+  - `onStart` 后清理 `pendingReject` 处补注释，说明录音中错误必须走运行时事件。
+  - 增加 `onInterruptionEnd` no-op 注释，明确 MVP 不自动恢复录音。
+- `class-record`
+  - 增加 `stopInFlight` 同步锁，避免第 10 分钟手动停止和 timer 停止同时触发误 toast。
+  - runtime `stop` 事件只在页面仍处于 recording / stopping 时接受，避免幽灵文件卡片。
+  - utils / service 导入改别名，降低与 Page 方法同名的误读风险。
+- `services/class-session.ts`
+  - `submitClass` 改为对象入参，避免 D2.1 接上传时继续传多段 `undefined`。
+
+验证：
+
+- `corepack pnpm run check` 通过。
+
+剩余闸门：
+
+- 真机 1 分钟手动停止。
+- 真机 10 分钟自动停止。
+- 中断 / 错误后页面状态与是否晚到 `onStop`。
+- 拒绝麦克风权限后 `wx.openSetting` 恢复路径。
+- 录音占位与手动文本 fallback 的 mock 文案区分。
+
+## 2026-05-20 D1.1 人工验证反馈与修复
+
+用户完成一轮真机验证：
+
+- 1 分钟录音手动停止通过。
+- 10 分钟自动停止后没有丢文件，但“已完成录音”显示的时长不是 10 分钟，
+  而是微信 `RecorderFile.duration` 返回的 3 分多钟。
+- 手动切后台无阻塞，后台继续录音。
+- 暂未遇到麦克风授权弹窗，权限恢复路径未覆盖。
+- 录音占位提交可进入处理页；手动文本 fallback 功能正常，但入口不够显眼。
+- 处理页截图暴露旧文案：“知识点提取 → 脉络重写”和原始状态 `done`。
+
+已修复：
+
+- `class-record` 完成录音时长改用页面墙钟时长 `Date.now() - recordStartedAt`，
+  不再优先使用微信返回的 `file.duration`。
+- `class-processing` 流程文案改为“转写 → 总结 → 生成测验”，状态改为中文展示。
+- 手动文本 fallback 加“备用入口”标识，按钮文案缩短为“提交文本生成总结”，并调整样式避免换行难看。
+
+验证：
+
+- `corepack pnpm run check` 通过。
+
+仍需复测：
+
+- 10 分钟自动停止后，“本地录音文件”显示时长应为 `10:00`。
+- 拒绝麦克风权限后的 `wx.openSetting` 恢复路径仍未覆盖。
+
+## 2026-05-20 D1.1 验证通过与 D2.1 启动
+
+用户复测确认：
+
+- 10 分钟录音显示时长已修复为 `10:00`。
+- 麦克风权限恢复路径已通过。
+
+D1.1 闸门状态：
+
+- 代码修复完成。
+- Claude / Opus 家族交叉审阅已落档。
+- 真机验证已通过。
+- 可以进入 D2.1。
+
+D2.1 已启动：
+
+- 新增 `Zlzl_miniprogram/constants/cloud.ts`：
+  - 集中放置 `CLOUD_ENV_ID`。
+  - `isCloudEnvConfigured()` 用于判断是否可初始化云开发。
+- `Zlzl_miniprogram/app.ts`：
+  - 仅在配置了 `CLOUD_ENV_ID` 时调用 `wx.cloud.init({ env })`。
+- 新增 `Zlzl_miniprogram/services/upload.ts`：
+  - 封装 `uploadClassRecording()`，页面不直接调用 `wx.cloud.uploadFile`。
+  - 云路径为 `class-recordings/{libraryId}/{timestamp}.mp3`。
+  - 返回 `recordingFileId`、`cloudPath`、时长、大小、上传时间。
+- 用户已提供微信云开发环境 ID：`cloud1-d3g0s64t152b5a542`。
+- `CLOUD_ENV_ID` 已配置为该环境 ID。
+
+验证：
+
+- `corepack pnpm run check` 通过。
+
+仍需用户提供 / 人工验证：
+
+- 将 `CLOUD_ENV_ID` 配置为真实环境 ID 后，用本地临时录音文件调用上传 service，
+  验证可得到云存储 fileID。
+
+## 2026-05-20 D2.2 录音页上传 UI
+
+D2.2 代码接入已完成：
+
+- `services/upload.ts`
+  - `uploadClassRecording()` 支持 `onProgress` 回调。
+- `class-record`
+  - 录音完成后自动调用 `uploadClassRecording()`。
+  - 上传中显示进度百分比和进度条。
+  - 上传成功后显示云存储 fileID。
+  - 上传失败后显示错误，并提供“重试上传”按钮。
+  - 手动文本 fallback 仍保留，上传失败不阻断文本兜底。
+
+验证：
+
+- `corepack pnpm run check` 通过。
+
+仍需真机 / 微信开发者工具验证：
+
+- 录制一段短音频，确认自动上传成功并显示 fileID。
+- 如能模拟失败，确认“重试上传”可恢复。
+- 上传成功后，再点“用录音占位进入 mock 处理”，确认仍能进入处理页。
+
+## 2026-05-20 D2.1/D2.2 上传验证通过
+
+用户真机验证确认：
+
+- 录制 29 秒音频后自动上传成功。
+- 页面显示云存储 fileID：
+  `cloud://cloud1-d3g0s64t152b5a542.636c-cloud1-d3g0s64t152b5a542-1435119207/class-recordings/lib-1779279672591-1/1779279714926.mp3`
+- 上传后仍可进入 mock 处理页。
+
+D2.1/D2.2 闸门状态：
+
+- 云环境 ID 已配置。
+- 上传 service 已封装。
+- 录音页自动上传 UI 已接入。
+- 真机上传拿 fileID 已通过。
+
+下一步进入 D2.3：
+
+- `submitClass` 使用 `recordingFileId`。
+- 上传成功后进入处理页时，把云 fileID 关联到课堂 session / class node。
+- `transcriptFallback` 继续只服务手动文本 fallback。
+
+## 2026-05-20 D2.3 上传后课堂提交
+
+D2.3 代码接入已完成：
+
+- `class-record`
+  - 上传成功时，点击处理按钮会用 `recordingFileId` 调 `submitClass`。
+  - 上传成功后不再把本地临时路径作为录音主数据提交。
+  - 上传失败 / 未上传时仍可用本地录音占位进入 mock 处理，便于兜底。
+  - 按钮文案会区分“用云录音进入 mock 处理”和“用录音占位进入 mock 处理”。
+- `services/class-session.ts`
+  - mock `ClassSession.recordingFileId` 和 class node `recordingFileId` 会保留云 fileID。
+  - mock 总结文案会说明当前输出已关联 `recordingFileId`，后续 E 阶段用它触发 ASR / LLM。
+  - `transcriptFallback` 仍只服务手动文本 fallback。
+
+验证：
+
+- `corepack pnpm run check` 通过。
+
+仍需真机 / 微信开发者工具验证：
+
+- 录音 → 上传成功 → 用云录音进入 mock 处理 → 查看课堂总结 → 开始本节课测验。
+- 查看总结 / 转写文案中是否能区分云录音 fileID 路径。
+- 记录 E 阶段输入契约：`recordingFileId` → 临时下载 URL / ASR 任务。
+
+## 2026-05-20 D2.3 验证通过
+
+用户真机验证确认：
+
+- 录音上传成功后可用云录音进入 mock 处理。
+- 课堂总结页面显示“云端录音占位”，确认 `recordingFileId` 已关联到 mock 输出。
+- 当前总结 / 转写 / 测验仍是 mock，不是真 ASR / LLM。
+- D2.3 主路径“录音 → 上传 → mock 课堂总结 → 本节课测验”已走通。
+
+下一步进入阶段 E 前置：
+
+- 记录 `recordingFileId` → 临时下载 URL → ASR 任务的输入契约。
+- 搭建云函数骨架，密钥只通过云函数环境变量读取。
+
+## 2026-05-20 阶段 E 前置云函数骨架
+
+阶段 E 前置已完成：
+
+- `project.config.json`
+  - 新增 `cloudfunctionRoot: "cloudfunctions/"`。
+  - `useCompilerPlugins` 仍保持 TypeScript。
+- 新增 `cloudfunctions/README.md`
+  - 记录云函数目录用途和后续所需环境变量。
+- 新增 `cloudfunctions/submitClass/`
+  - 接收 `libraryId`、`recordingFileId`。
+  - 当前返回待处理 session 占位。
+- 新增 `cloudfunctions/advanceClass/`
+  - 接收 `sessionId`、`recordingFileId`。
+  - 调用 `cloud.getTempFileURL` 将 fileID 换成临时下载 URL。
+  - 当前明确返回 `ASR/LLM providers are not configured yet`，不假装真实处理。
+- `docs/specs/mvp-implementation/design.md`
+  - 已记录 E 阶段输入契约：
+    `recordingFileId` → `cloud.getTempFileURL` → ASR → LLM 总结 / 测验 → 写回 class node。
+
+验证：
+
+- `corepack pnpm run check` 通过。
+
+仍需决策 / 配置：
+
+- ASR 服务商、API key、base URL。
+- LLM 服务商、模型名、API key、base URL。
+- 密钥只放云函数环境变量，不进入小程序代码。
+

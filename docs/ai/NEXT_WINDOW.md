@@ -15,8 +15,8 @@
   - 目标流程：录音(先 10 分钟) → 转写 → 课堂输出(总结等) → 测验
   - 学习脉络、今日学习、长期复习、状态色、闪卡先不作为本轮验收范围
 - 当前后端形态：所有 service 仍走 mock；尚未接微信云开发、ASR、LLM
-- 当前执行阶段：阶段 A/B/C/C.5/D1 已完成；D1.1 代码修复与交叉审阅已完成；
-  下一步先做 D1.1 真机验证，通过后再进入 D2.1
+- 当前执行阶段：阶段 A/B/C/C.5/D1/D1.1/D2.1/D2.2/D2.3 已完成；
+  阶段 E 前置云函数骨架已完成，下一步需要 ASR / LLM 服务商与凭据配置
 
 ## 新窗口先读(按顺序)
 
@@ -107,8 +107,8 @@
   `docs/reviews/requests/2026-05-20_mvp-class-loop_claude_review_request.md`。
 - Claude 正式审阅已落档：
   `docs/reviews/results/2026-05-20_mvp-class-loop_claude_review.md`。
-- 审阅结论：不建议在不修 P0 的情况下进入 D2；D1.1 代码修复已完成，
-  仍需真机验证和交叉审阅。
+- 审阅结论：不建议在不修 P0 的情况下进入 D2；D1.1 代码修复和交叉审阅已完成，
+  仍需真机验证。
 - 阶段 D1.1：修复录音到点双停竞争、录音中途错误静默、拒绝权限恢复路径、
   录音占位与手动文本 fallback 语义混用、WXML 写死进度常量、页面模块作用域计时器。
 - `corepack pnpm run check` 已通过。
@@ -123,22 +123,49 @@
   提出 1 中（M1 中断后 onStop 重入）+ 5 低优修订项。
 - D1.1 审阅后小修已完成：丢弃错误 / 中断后晚到的 `onStop`，增加同步 stop 锁，
   `submitClass` 改为对象入参，导入别名降低同名误读风险，并补充中断不自动恢复说明。
+- D1.1 人工验证反馈：
+  - 1 分钟手动停止通过。
+  - 10 分钟自动停止后文件未丢，但显示时长被微信 `file.duration` 带偏成 3 分多钟；已修为使用页面墙钟时长。
+  - 切后台无阻塞，后台继续录音。
+  - 麦克风拒绝 / 恢复路径尚未覆盖。
+  - 手动文本 fallback 功能正常但入口不显眼；已加“备用入口”标识并优化按钮。
+  - `class-processing` 旧“知识点提取 / 脉络重写”文案已改为“转写 → 总结 → 生成测验”。
+- D1.1 复测已通过：10 分钟显示 `10:00`，麦克风权限恢复路径通过。
+- D2.1 已启动：
+  - 新增 `constants/cloud.ts` 集中配置 `CLOUD_ENV_ID`。
+  - `app.ts` 在配置环境 ID 后初始化 `wx.cloud`。
+  - 新增 `services/upload.ts`，封装 `uploadClassRecording()`，云路径为
+    `class-recordings/{libraryId}/{timestamp}.mp3`，返回 `recordingFileId` 和基础元信息。
+  - `CLOUD_ENV_ID` 已配置为 `cloud1-d3g0s64t152b5a542`。
+- D2.2 代码已完成：
+  - 录音完成后自动上传到微信云存储。
+  - 上传中显示进度。
+  - 上传成功后显示 fileID。
+  - 上传失败可重试，手动文本 fallback 仍保留。
+- D2.1/D2.2 真机验证已通过：
+  - 29 秒录音上传成功。
+  - 已拿到云存储 fileID：
+    `cloud://cloud1-d3g0s64t152b5a542.636c-cloud1-d3g0s64t152b5a542-1435119207/class-recordings/lib-1779279672591-1/1779279714926.mp3`
+  - 上传后可进入 mock 处理页。
+- D2.3 代码已完成：
+  - 上传成功时用 `recordingFileId` 调 `submitClass`。
+  - mock session / class node 保留 `recordingFileId`。
+  - 上传失败 / 未上传时仍保留本地录音占位兜底。
+  - `transcriptFallback` 继续只服务手动文本 fallback。
+- D2.3 真机验证已通过：
+  - 录音 → 上传 → mock 课堂总结 → 本节课测验主路径可走通。
+  - 当前总结 / 转写 / 测验仍是 mock，不是真 ASR / LLM。
+- 阶段 E 前置已完成：
+  - `project.config.json` 新增 `cloudfunctionRoot: "cloudfunctions/"`。
+  - 新增 `cloudfunctions/submitClass/` 和 `cloudfunctions/advanceClass/` 骨架。
+  - `advanceClass` 已定义 `recordingFileId` → 临时下载 URL → ASR → LLM 的入口契约。
+  - 真实 ASR / LLM 尚未配置，云函数不会假装生成真实结果。
 
 ## 下一步建议
 
-先完成 D1.1 闸门：
+继续阶段 E：
 
-- 真机 1 分钟录音手动停止后能显示本地文件。
-- 真机 10 分钟到点自动停止后不丢本地文件。
-- 录音中断 / 系统错误后页面不再停留在“录音中”。
-- 拒绝麦克风权限后再次点击能引导打开设置。
-- 录音占位提交和手动文本提交在 mock 文案上可区分。
-
-D1.1 真机验证通过后，再进入阶段 D2.1：
-
-- 配置微信云开发环境 ID。
-- 封装上传 service，不在页面直接散落 `wx.cloud.uploadFile`。
-- 录音结束后上传到微信云存储并拿到 fileID。
-- 上传失败支持重试或回到手动文本 fallback。
-
-D2 开始前需要微信云开发环境 ID。
+- 确定 ASR 服务商、API key、base URL。
+- 确定 LLM 服务商、模型名、API key、base URL。
+- 在云函数环境变量配置密钥。
+- 把 `advanceClass` 从骨架接成真实 ASR → 总结 → 测验生成。

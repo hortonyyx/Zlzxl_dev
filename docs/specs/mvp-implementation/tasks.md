@@ -83,74 +83,76 @@
 
 目标：修复 D1 审阅发现的录音可靠性阻塞项，修完后再进入 D2。
 
-- [ ] 修复 10 分钟到点双停竞争：避免 wx 自动 stop 与 JS timer 主动 stop 同时触发导致丢文件。
-- [ ] 录音中途 `onError` / `onInterruptionBegin` 能同步到页面状态，停止计时并提示用户。
-- [ ] 麦克风权限曾被拒绝时走 `wx.openSetting` 恢复路径。
-- [ ] 录音占位提交与手动文本 fallback 分离；`transcriptFallback` 只服务手动文本。
-- [ ] 录音占位提交能保留本地录音信息，至少在 mock 总结 / 日志中可见。
-- [ ] `class-record` 进度百分比不在 WXML 写死 `600000`。
-- [ ] `recordTimer` / `recordStartedAt` 不使用模块作用域共享状态。
+- [x] 修复 10 分钟到点双停竞争：避免 wx 自动 stop 与 JS timer 主动 stop 同时触发导致丢文件。
+- [x] 录音中途 `onError` / `onInterruptionBegin` 能同步到页面状态，停止计时并提示用户。
+- [x] 麦克风权限曾被拒绝时走 `wx.openSetting` 恢复路径。
+- [x] 录音占位提交与手动文本 fallback 分离；`transcriptFallback` 只服务手动文本。
+- [x] 录音占位提交能保留本地录音信息，至少在 mock 总结 / 日志中可见。
+- [x] `class-record` 进度百分比不在 WXML 写死 `600000`。
+- [x] `recordTimer` / `recordStartedAt` 不使用模块作用域共享状态。
 
 验证：
 
-- `corepack pnpm run check`
-- 真机 10 分钟自动停止后能保留本地文件信息。
-- 录音中断 / 系统错误后页面不再停留在“录音中”。
-- 拒绝麦克风权限后再次点击能引导打开设置。
-- 录音占位提交和手动文本提交在 mock 文案上可区分。
+- [x] `corepack pnpm run check`
+- [x] 真机 10 分钟自动停止后能保留本地文件信息。
+- [x] 真机 10 分钟自动停止后本地录音文件显示时长为 `10:00`。
+- [x] 录音中断 / 系统错误后页面不再停留在“录音中”。
+- [x] 拒绝麦克风权限后再次点击能引导打开设置。
+- [x] 录音占位提交和手动文本提交在 mock 文案上可区分。
 
 ## 阶段 D2.1 · 云环境与上传 service
 
 目标：先建立云存储上传能力，不改页面主流程。
 
-- [ ] 配置微信云开发环境 ID。
-- [ ] 封装上传 service，不在页面直接散落 `wx.cloud.uploadFile`。
-- [ ] 文件路径建议：`class-recordings/{libraryId}/{timestamp}.mp3`。
-- [ ] 上传 service 返回 `recordingFileId` 和基础元信息。
+- [x] 配置微信云开发环境 ID。
+- [x] 封装上传 service，不在页面直接散落 `wx.cloud.uploadFile`。
+- [x] 文件路径建议：`class-recordings/{libraryId}/{timestamp}.mp3`。
+- [x] 上传 service 返回 `recordingFileId` 和基础元信息。
 
 验证：
 
-- `corepack pnpm run check`
-- 使用本地临时录音文件调用上传 service 可得到云存储 fileID。
+- [x] `corepack pnpm run check`
+- [x] 使用本地临时录音文件调用上传 service 可得到云存储 fileID。
 
 ## 阶段 D2.2 · 录音页上传 UI
 
 目标：把本地录音文件上传到微信云存储，得到 `recordingFileId`。
 
-- [ ] 录音结束后上传到微信云存储。
-- [ ] 上传中显示进度或明确 loading。
-- [ ] 上传成功后显示 fileID / 上传完成状态。
-- [ ] 上传失败支持重试或回到手动文本 fallback。
+- [x] 录音结束后上传到微信云存储。
+- [x] 上传中显示进度或明确 loading。
+- [x] 上传成功后显示 fileID / 上传完成状态。
+- [x] 上传失败支持重试或回到手动文本 fallback。
 
 验证：
 
-- `corepack pnpm run check`
-- 真机录制后上传成功，能拿到云存储 fileID。
-- 上传失败状态可恢复。
+- [x] `corepack pnpm run check`
+- [x] 真机录制后上传成功，能拿到云存储 fileID。
+- [ ] 上传失败状态可恢复。
 
 ## 阶段 D2.3 · 上传后课堂提交
 
 目标：把 `recordingFileId` 接回课堂 session，仍可先走 mock 处理。
 
-- [ ] `submitClass` 接收 `libraryId` + `recordingFileId`。
-- [ ] 本地临时文件上传成功后不再直接作为长期数据使用。
-- [ ] `class-processing` 能从上传成功进入处理页。
-- [ ] mock 下可用 `recordingFileId` 生成课堂总结和本节课测验。
-- [ ] `transcriptFallback` 只服务手动 textarea，录音路径不复用该字段。
+- [x] `submitClass` 接收 `libraryId` + `recordingFileId`。
+- [x] 本地临时文件上传成功后不再直接作为长期数据使用。
+- [x] `class-processing` 能从上传成功进入处理页。
+- [x] mock 下可用 `recordingFileId` 生成课堂总结和本节课测验。
+- [x] `transcriptFallback` 只服务手动 textarea，录音路径不复用该字段。
 - [ ] 记录 ASR 阶段需要的输入契约：`recordingFileId` → 临时下载 URL / ASR 任务。
 
 验证：
 
-- `corepack pnpm run check`
-- 录音 → 上传 → mock 课堂总结 → 本节课测验可走通。
+- [x] `corepack pnpm run check`
+- [x] 录音 → 上传 → mock 课堂总结 → 本节课测验可走通。
 
 ## 阶段 E · 云开发处理流水线
 
 目标：把录音变成真实课堂输出。
 
-- [ ] 配置微信云开发环境。
-- [ ] 新增 `submitClass` 云函数。
-- [ ] 新增 `advanceClass` 云函数，推进 ASR → 总结 → 测验生成。
+- [x] 配置微信云开发环境。
+- [x] 新增 `submitClass` 云函数。
+- [x] 新增 `advanceClass` 云函数，推进 ASR → 总结 → 测验生成。
+- [x] 记录 `recordingFileId` → 临时下载 URL → ASR 任务输入契约。
 - [ ] 密钥放云函数环境变量。
 - [ ] `class-processing` 轮询处理状态，完成后进入 `node-summary`。
 - [ ] 处理失败支持重试。
