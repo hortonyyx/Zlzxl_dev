@@ -160,3 +160,57 @@
 约束补充：AGENTS.md 写"不要修改 project.config.json，除非任务明确要求"
 ——此项目本来就需要 TS 编译，这是基建必要项，记录于此供后续模型不再
 踩坑。后续若需引入 sass / less 等可在 `useCompilerPlugins` 数组里扩展。
+
+## 2026-05-20 第一轮 MVP 收工总览
+
+**本轮做了什么**(按 commit 时间顺序):
+
+- 阶段 0:scaffold 路由 + 11 个页面占位 + index 路由常量。
+- 阶段 1:`types/learning.ts` + 6 个 service mock 实现 + `cloud.ts` mock 开关 +
+  `mock-store` demo 数据(`feat: add mvp mock service foundation`)。
+- 地基修复(Opus 审阅 Q3/Q2/读操作/Node 别名):demo station 1 只挂绿点;
+  `upsertClassKnowledgePoints` 改成 main + bridge + new 三点结构;读操作
+  统一经 `callCloud`;`Node` 别名移除(`fix: harden mvp mock foundation`)。
+- 阶段 2 mock UI 主路径:12 页全部接通 service,体验闭环可走
+  (`feat: add mvp mock ui path`)。
+- C1–C4 GO/NO-GO 前打磨(Opus 阶段 2 审阅意见):
+  - 测验改文本作答提交,移除 expectedAnswer 展示;
+  - 闪卡改逐张翻卡 + 自评;
+  - station-detail 按 mailuo.station.knowledgePointIds 精确过滤;
+  - `mockGradeModule` 后同步更新 `mailuo.latestUpdateNote` 和便签,
+    复习后回库能看见 delta(`fix: polish mvp mock modules`)。
+- 产品文档梳理:concept / brief / backlog / architecture / prototype.html /
+  structure.html 全部产出并对齐;DeepSeek、Codex、Opus(×2)四轮交叉审阅
+  归档到 `docs/reviews/`。
+- 收工规范:新增 `docs/ai/wrap-up.md` + README 升级到产品先行版本。
+- 基建修复:`project.config.json` 启用 TypeScript 编译插件,
+  清除 12 个工具自动生成的空白 `.js` 模板,小程序运行时正常加载 `.ts` 编译产物。
+
+**GO / NO-GO 闸门**:**通过**。用户在微信开发者工具中走完 demo 库与
+自建库两条主路径,体验闭环成立——可以进入阶段 3(接微信云开发、真录音、
+ASR、LLM)。
+
+**留下了什么**(进阶段 3 前要回来看):
+
+- D 类非阻塞项(见 `docs/reviews/2026-05-20_mvp-stage2_opus_review.md`):
+  - library-list 卡片"掌握分布微条"是 3 段固定色块,不反映实际比例。
+  - 路由栈出现重复 `library-detail`,系统返回键会回到 stale 页。
+  - node-summary 的"开始课后测验"复用了 `planStudy`,语义被并入今日学习,
+    未拆分为本节课针对性测验。
+  - 视觉与 `prototype.html` 差距大(panel + 文字,无脉络渲染等)。
+- mock 限制:
+  - `class-processing` 在 mock 下瞬态闪过,流水线无可视化。
+  - `quiz-run` 评分用"输入 ≥8 字判通过"的 mock 规则。
+  - `node-summary` 完整转写稿 / 纠错入口为占位文字。
+  - `updateMailuoAfterModule` 在 `answers.map` 内多次触发,最后一条 answer
+    决定文案口径;observations 被整体覆写会盖掉 demo 原文案。
+
+**审阅状态**:全部归档,见 `docs/reviews/README.md`。
+**验证状态**:`corepack pnpm run check` 通过 + 微信开发者工具真人走查通过。
+**分支**:`feat/mvp-stage0-1`,已 push,**未 merge 到 main**——是否合并由
+用户决定;若合并建议走 PR(链接见仓库提示)。
+
+**下一步建议**:开阶段 3 执行 brief 前,先就以下三点对齐:
+1. 接哪家 ASR / LLM(MVP 一直挂着的两个待确认)。
+2. 长录音降级的具体分段参数(前台连续 + 中断续录)。
+3. D 类项是否要在阶段 3 之前顺手清掉。
