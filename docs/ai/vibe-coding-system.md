@@ -15,11 +15,12 @@
 5. 把计划拆成可执行模块。
 6. 用 Codex、Claude Code 或其他编码 Agent 一次执行一个模块。
 7. 每个模块完成后，用另一个模型家族做交叉审阅。
-8. 将审阅原文和处置摘要归档到 `docs/reviews/`；未归档不算完成审阅。
-9. 继续前先跑可用检查，并在微信开发者工具中验证。
-10. 大节点完成后，让 GPT-5.5 和 Opus 分别独立评审，并分别归档。
-11. 把有用决策沉淀到 `docs/ai/session-notes.md`、`docs/specs` 或 `docs/skills`。
-12. 对话变脏时重置上下文。
+8. 开发 Agent 先把审阅请求包归档到 `docs/reviews/requests/`。
+9. 审阅 Agent 将审阅原文和处置摘要归档到 `docs/reviews/results/`；未归档不算完成审阅。
+10. 继续前先跑可用检查，并在微信开发者工具中验证。
+11. 大节点完成后，让 GPT-5.5 和 Opus 分别独立评审，并分别归档。
+12. 把有用决策沉淀到 `docs/ai/session-notes.md`、`docs/specs` 或 `docs/skills`。
+13. 对话变脏时重置上下文。
 
 ## 执行包
 
@@ -61,9 +62,12 @@ docs/specs/<feature-name>/tasks.md
 
 审阅归档是硬闸门：
 
-- 审阅必须落成 `docs/reviews/YYYY-MM-DD_<目标>_<审阅方>_review.md`。
-- 文件中必须包含原始审阅意见和处置摘要。
-- `docs/reviews/README.md` 必须追加索引。
+- 开发 Agent 完成小节点后，先落请求包：
+  `docs/reviews/requests/YYYY-MM-DD_<目标>_<期望审阅方>_review_request.md`。
+- 审阅 Agent 完成审阅后，落结果：
+  `docs/reviews/results/YYYY-MM-DD_<目标>_<审阅方>_review.md`。
+- 结果文件中必须包含原始审阅意见和处置摘要。
+- `docs/reviews/README.md` 必须追加请求和结果索引。
 - 聊天输出、截图或口头结论不能替代审阅归档。
 - 审阅归档完成后，由审阅 Agent 提交一次 commit，作为一个独立审阅节点。
 - 审阅提出的修订、bugfix、设计调整进入下一轮开发；不要混进审阅节点 commit。
