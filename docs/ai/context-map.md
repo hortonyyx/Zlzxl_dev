@@ -14,11 +14,14 @@
 
 ## 产品文档
 
-- `docs/product/brief.md`：MVP 产品简报。
+- `docs/product/concept.md`：产品概念与设计说明（详细事实来源，含决策理由）。
+- `docs/product/brief.md`：MVP 产品简报（一页纸摘要）。
 - `docs/product/backlog.md`：优先级队列。
 
 ## 执行包
 
+- `docs/specs/mvp-implementation/`：第一版 MVP 总控落地方案（阶段、协作、闸门）。
+- `docs/specs/class-mode/`：上课 + 学习双模式详细功能包（目录名沿用早期命名）。
 - `docs/specs/<feature>/requirements.md`：范围和验收标准。
 - `docs/specs/<feature>/design.md`：技术和体验设计。
 - `docs/specs/<feature>/tasks.md`：分模块执行计划。

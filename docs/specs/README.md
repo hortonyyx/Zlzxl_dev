@@ -32,3 +32,9 @@ docs/specs/login/
 docs/specs/onboarding/
 docs/specs/profile/
 ```
+
+## 当前执行包
+
+- `mvp-implementation/`：第一版 MVP 总控落地方案，用于 Codex / Claude 分阶段协作。
+- `class-mode/`：上课 + 学习双模式详细功能包；目录名沿用早期“上课模式”命名，
+  当前实际覆盖完整 MVP 循环。

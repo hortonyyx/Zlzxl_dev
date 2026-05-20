@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>知了知了 · 产品结构总览</title>
+<style>
+  :root {
+    --primary: #5B5BD6; --primary-soft: #EEEDFF; --primary-deep: #3F3FB0;
+    --ink: #1E2030; --ink-2: #5A5F73; --ink-3: #9097A8;
+    --line: #E6E7EF; --board: #EEF0F4;
+    --green: #2BB673; --amber: #EFA935; --gray: #C7CBD6;
+    --know: #4F7DF0; --state: #E08A2B;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: var(--board); color: var(--ink); padding: 44px 24px 90px;
+    -webkit-font-smoothing: antialiased; line-height: 1.6;
+  }
+  .poster { max-width: 940px; margin: 0 auto; }
+
+  .head { text-align: center; margin-bottom: 8px; }
+  .head h1 { font-size: 27px; letter-spacing: .5px; }
+  .head .tag { color: var(--ink-3); font-size: 13px; margin-top: 8px; }
+
+  .oneline {
+    background: linear-gradient(135deg, #6A6AE0, #8A7DF0); color: #fff;
+    border-radius: 18px; padding: 20px 24px; margin: 22px 0 30px; text-align: center;
+  }
+  .oneline .big { font-size: 18px; font-weight: 800; }
+  .oneline .small { font-size: 13px; opacity: .9; margin-top: 7px; }
+
+  .sec { margin-bottom: 30px; }
+  .sec-h {
+    font-size: 13px; font-weight: 800; color: var(--primary-deep);
+    letter-spacing: 1px; margin-bottom: 13px; display: flex; align-items: center; gap: 9px;
+  }
+  .sec-h .no {
+    width: 22px; height: 22px; border-radius: 7px; background: var(--primary);
+    color: #fff; font-size: 12px; display: flex; align-items: center; justify-content: center;
+  }
+
+  .card {
+    background: #fff; border-radius: 16px; padding: 18px;
+    box-shadow: 0 3px 14px rgba(30,32,48,.06);
+  }
+  .row { display: flex; gap: 16px; }
+  .col { flex: 1; }
+  .muted { color: var(--ink-2); font-size: 13px; }
+  .tiny { color: var(--ink-3); font-size: 11.5px; }
+
+  /* 两大体系 */
+  .system { border-radius: 16px; padding: 17px; color: #fff; }
+  .system.knowledge { background: linear-gradient(135deg, #4F7DF0, #6E97F5); }
+  .system.state    { background: linear-gradient(135deg, #E08A2B, #ECA64F); }
+  .system .sh { font-size: 16px; font-weight: 800; }
+  .system .sw { font-size: 11px; opacity: .85; letter-spacing: 1px; margin-top: 2px; }
+  .system .sl { font-size: 12.5px; margin-top: 11px; line-height: 1.7; }
+  .system .chip {
+    display: inline-block; background: rgba(255,255,255,.22); border-radius: 7px;
+    padding: 3px 9px; font-size: 11px; margin: 8px 6px 0 0;
+  }
+  .view-band {
+    margin-top: 14px; background: var(--primary-soft); border: 1px dashed #B9B8E8;
+    border-radius: 13px; padding: 13px 16px; text-align: center;
+  }
+  .view-band b { color: var(--primary-deep); }
+  .view-band .vt { font-size: 13px; }
+  .view-band .vs { font-size: 11.5px; color: var(--ink-2); margin-top: 3px; }
+
+  /* 库结构 */
+  .libbox { border: 2px solid var(--primary); border-radius: 16px; padding: 15px; background: #fff; }
+  .libbox > .lh { font-weight: 800; font-size: 14px; margin-bottom: 12px; }
+  .libbox > .lh span { font-weight: 400; color: var(--ink-3); font-size: 12px; }
+  .subbox {
+    border: 1px solid var(--line); border-radius: 12px; padding: 13px;
+    background: #FAFAFD;
+  }
+  .subbox .bt { font-weight: 700; font-size: 13px; margin-bottom: 8px; }
+  .pellet {
+    display: block; background: #fff; border: 1px solid var(--line); border-radius: 9px;
+    padding: 8px 11px; font-size: 12px; margin-bottom: 7px;
+  }
+  .pellet b { font-size: 12.5px; }
+  .pellet .pd { color: var(--ink-3); font-size: 11px; }
+
+  /* 流程 / 循环 */
+  .flow { display: flex; align-items: stretch; gap: 0; flex-wrap: wrap; }
+  .step {
+    background: #fff; border: 1px solid var(--line); border-radius: 11px;
+    padding: 10px 12px; font-size: 12px; font-weight: 600; flex: 1; min-width: 96px;
+    display: flex; flex-direction: column; justify-content: center; text-align: center;
+  }
+  .step .sd { font-weight: 400; color: var(--ink-3); font-size: 10.5px; margin-top: 3px; }
+  .arrow { display: flex; align-items: center; padding: 0 7px; color: var(--primary); font-weight: 800; }
+  .loopline {
+    background: var(--primary-soft); border-radius: 9px; text-align: center;
+    font-size: 11.5px; color: var(--primary-deep); padding: 7px; margin-top: 9px; font-weight: 600;
+  }
+  .engine {
+    display: flex; gap: 14px; margin-top: 13px; flex-wrap: wrap;
+  }
+  .engine .ebox { flex: 1; min-width: 220px; border-radius: 12px; padding: 13px; }
+  .engine .algo { background: #FDF1E2; border: 1px solid #F0D7B4; }
+  .engine .ai   { background: #E9F4EC; border: 1px solid #C4E4CE; }
+  .engine .et { font-weight: 800; font-size: 13px; }
+  .engine .em { font-size: 12px; color: var(--ink-2); margin-top: 5px; }
+
+  /* 模块 */
+  .mods { display: flex; gap: 9px; flex-wrap: wrap; }
+  .mod {
+    background: #fff; border: 1px solid var(--line); border-radius: 10px;
+    padding: 9px 13px; font-size: 12.5px; font-weight: 600;
+  }
+  .mod.v2 { color: var(--ink-3); border-style: dashed; }
+
+  /* 模式 */
+  .modes { display: flex; gap: 13px; flex-wrap: wrap; }
+  .mode {
+    flex: 1; min-width: 200px; border-radius: 14px; padding: 15px; background: #fff;
+    border: 1px solid var(--line);
+  }
+  .mode.mvp { border: 2px solid var(--primary); }
+  .mode .mh { font-size: 14px; font-weight: 800; display: flex; align-items: center; gap: 7px; }
+  .mode .pill {
+    font-size: 9.5px; font-weight: 700; padding: 2px 7px; border-radius: 6px;
+  }
+  .mode .pill.mvp { background: var(--primary); color: #fff; }
+  .mode .pill.v2 { background: #EAEAF2; color: var(--ink-3); }
+  .mode .mm { font-size: 12px; color: var(--ink-2); margin-top: 7px; }
+
+  .legend-line {
+    text-align: center; color: var(--ink-3); font-size: 11.5px; margin-top: 36px;
+  }
+</style>
+</head>
+<body>
+<div class="poster">
+
+  <div class="head">
+    <h1>知了知了 · 产品结构总览</h1>
+    <div class="tag">给团队讲清楚"这个产品是怎么构成的" · 依据 docs/product/concept.md</div>
+  </div>
+
+  <div class="oneline">
+    <div class="big">语音优先的长周期 AI 学伴</div>
+    <div class="small">陪伴型(账号级 · 有状态 · 随使用累积) ≠ 工具型(会话级 · 无状态 · 按功能调用)</div>
+  </div>
+
+  <!-- 1 两大体系 -->
+  <div class="sec">
+    <div class="sec-h"><span class="no">1</span>核心:两大体系</div>
+    <div class="card">
+      <div class="row">
+        <div class="col system knowledge">
+          <div class="sh">知识体系</div>
+          <div class="sw">WHAT · 学的"东西"</div>
+          <div class="sl">载体 = 知识点池。由输入喂养、由 AI 组织。稳定、可累积。</div>
+          <span class="chip">知识点 = 一等实体</span>
+          <span class="chip">稳定 ID</span>
+          <span class="chip">双链(图结构)</span>
+        </div>
+        <div class="col system state">
+          <div class="sh">状态体系</div>
+          <div class="sw">WHEN / WHETHER · 掌握得怎样</div>
+          <div class="sl">载体 = 掌握信号 + 状态色。由学习 / 复习的回写驱动。动态、因人而异。</div>
+          <span class="chip">信号时间序列</span>
+          <span class="chip">绿 / 黄 / 灰</span>
+          <span class="chip">算法 + AI</span>
+        </div>
+      </div>
+      <div class="view-band">
+        <div class="vt"><b>学习脉络</b> = 两大体系叠加后的「读取视图 / 叙述层」</div>
+        <div class="vs">它不是第三个体系;用户永远看脉络(叙述),不看原始结构</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2 库的构成 -->
+  <div class="sec">
+    <div class="sec-h"><span class="no">2</span>容器:库 = 一条学习路径</div>
+    <div class="libbox">
+      <div class="lh">库 <span>(如"设计史";实例可以是一门课,也可以是一个学习目标)</span></div>
+      <div class="row">
+        <div class="col subbox">
+          <div class="bt">知识库</div>
+          <span class="pellet"><b>原始语料</b><span class="pd"> · 录音 / 转写 / 上传资料</span></span>
+          <span class="pellet"><b>知识点池</b><span class="pd"> · 知识体系的载体</span></span>
+          <span class="pellet"><b>学习脉络</b><span class="pd"> · 库的主视图</span></span>
+        </div>
+        <div class="col subbox">
+          <div class="bt">节点流</div>
+          <span class="pellet"><b>节点 = 一次会话</b><span class="pd"> · class 上课 / study 学习</span></span>
+          <span class="pellet">append-only · 退到「历史」</span>
+          <div class="tiny" style="margin-top:9px">节点是<b>生产单元</b>,不是导航单元——导航靠脉络。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3 引擎:两个循环 -->
+  <div class="sec">
+    <div class="sec-h"><span class="no">3</span>引擎:两个循环</div>
+    <div class="card">
+      <div class="muted" style="font-weight:700;color:var(--ink);margin-bottom:9px">① 上课线 — 知识点的"输入泵"</div>
+      <div class="flow">
+        <div class="step">上课录音</div>
+        <div class="arrow">→</div>
+        <div class="step">课后转写</div>
+        <div class="arrow">→</div>
+        <div class="step">提炼知识点<span class="sd">归一化入池</span></div>
+        <div class="arrow">→</div>
+        <div class="step">课堂总结<span class="sd">三段式固化</span></div>
+        <div class="arrow">→</div>
+        <div class="step">重写脉络</div>
+      </div>
+
+      <div class="muted" style="font-weight:700;color:var(--ink);margin:18px 0 9px">② 学习线 — 知识点的"复习循环"(护城河)</div>
+      <div class="flow">
+        <div class="step">算法出<br>到期清单</div>
+        <div class="arrow">→</div>
+        <div class="step">AI 编排<br>学习节点</div>
+        <div class="arrow">→</div>
+        <div class="step">复习<br><span class="sd">做模块</span></div>
+        <div class="arrow">→</div>
+        <div class="step">回写<br>掌握信号</div>
+        <div class="arrow">→</div>
+        <div class="step">状态 + 脉络<br>更新</div>
+      </div>
+      <div class="loopline">↻ 循环往复 —— 这就是"复利留存",上课模式单独跑不出这个循环</div>
+
+      <div class="engine">
+        <div class="ebox algo">
+          <div class="et">算法层 — 管"记没记住"</div>
+          <div class="em">间隔重复 / 遗忘曲线。把"状态"算成"到期清单"。确定性,不交给 LLM。</div>
+        </div>
+        <div class="ebox ai">
+          <div class="et">AI 层 — 管"懂没懂 / 学什么"</div>
+          <div class="em">诊断概念误区、连暗线、把到期清单编排成一个学习节点。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4 模块 -->
+  <div class="sec">
+    <div class="sec-h"><span class="no">4</span>模块 = 知识点的"输出模式"</div>
+    <div class="card">
+      <div class="muted" style="margin-bottom:11px">
+        学习功能封装成模块,永远<b>绑定一个知识目标</b>(不做 app 级功能瓷砖)。
+        由 AI + 人编排进节点;每个模块跑完<b>回写掌握信号</b> → 喂养状态体系。
+      </div>
+      <div class="mods">
+        <div class="mod">知识点 / 课堂总结</div>
+        <div class="mod">测验</div>
+        <div class="mod">闪卡</div>
+        <div class="mod v2">语音抽背 · v2</div>
+        <div class="mod v2">听写 · v2</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5 三大模式 -->
+  <div class="sec">
+    <div class="sec-h"><span class="no">5</span>三大模式与 MVP 范围</div>
+    <div class="modes">
+      <div class="mode mvp">
+        <div class="mh">上课模式 <span class="pill mvp">MVP</span></div>
+        <div class="mm">课堂录音 → 课后整理。知识点的<b>输入泵</b>。</div>
+      </div>
+      <div class="mode mvp">
+        <div class="mh">学习模式 <span class="pill mvp">MVP</span></div>
+        <div class="mm">到期清单 → AI 编排复习。知识点的<b>复习循环</b> = 护城河。</div>
+      </div>
+      <div class="mode">
+        <div class="mh">规划模式 <span class="pill v2">v2</span></div>
+        <div class="mm">按显式目标 + 时间表编排未来一串学习节点。复习循环的长线延伸。</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="legend-line">
+    MVP 验证:钩子(上完课立即有好总结) + 护城河(脉络可见地长大、跨课记忆、复习循环转起来)
+  </div>
+
+</div>
+</body>
+</html>

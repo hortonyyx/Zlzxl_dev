@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>知了知了 · MVP 原型(上课 + 学习双模式)</title>
+<style>
+  :root {
+    --primary: #5B5BD6; --primary-soft: #EEEDFF; --primary-deep: #3F3FB0;
+    --ink: #1E2030; --ink-2: #5A5F73; --ink-3: #9097A8;
+    --line: #ECEDF2; --board: #EEF0F4;
+    --green: #2BB673; --amber: #EFA935; --gray-dot: #C7CBD6; --card: #FFFFFF;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: var(--board); color: var(--ink); padding: 40px 32px 80px;
+    -webkit-font-smoothing: antialiased;
+  }
+  .board-head { max-width: 1500px; margin: 0 auto 12px; }
+  .board-head h1 { font-size: 24px; letter-spacing: .5px; }
+  .board-head p { color: var(--ink-2); font-size: 13px; margin-top: 6px; }
+  .legend {
+    max-width: 1500px; margin: 16px auto 28px; display: flex; gap: 20px;
+    flex-wrap: wrap; font-size: 12px; color: var(--ink-2);
+  }
+  .legend span { display: flex; align-items: center; gap: 6px; }
+  .ldot { width: 10px; height: 10px; border-radius: 50%; }
+  .section-title {
+    max-width: 1500px; margin: 26px auto 14px; font-size: 14px;
+    font-weight: 700; color: var(--primary-deep); letter-spacing: .5px;
+  }
+  .deck {
+    max-width: 1500px; margin: 0 auto; display: flex; flex-wrap: wrap;
+    gap: 30px 26px; align-items: flex-start;
+  }
+  .frame { width: 326px; }
+  .caption { font-size: 12px; color: var(--ink-2); margin: 10px 4px 0; }
+  .caption b { color: var(--ink); }
+
+  .phone {
+    width: 326px; height: 706px; background: #fff; border-radius: 38px;
+    box-shadow: 0 18px 40px rgba(30,32,48,.16); padding: 10px; border: 1px solid #E3E5EC;
+  }
+  .screen {
+    position: relative; width: 100%; height: 100%; border-radius: 30px;
+    background: #F7F8FB; overflow: hidden; display: flex; flex-direction: column;
+  }
+  .statusbar {
+    height: 36px; flex: none; display: flex; align-items: center;
+    justify-content: space-between; padding: 0 22px; font-size: 12px;
+    font-weight: 600; color: var(--ink);
+  }
+  .statusbar .dots { letter-spacing: 2px; }
+  .body { flex: 1; overflow-y: auto; padding: 4px 18px 18px; }
+  .body::-webkit-scrollbar { width: 0; }
+
+  .topbar {
+    display: flex; align-items: center; gap: 10px; padding: 6px 2px 14px;
+    font-size: 17px; font-weight: 700;
+  }
+  .topbar .back { color: var(--ink-3); font-size: 20px; font-weight: 400; }
+  .topbar .grow { flex: 1; }
+  .topbar .ico { color: var(--ink-3); font-size: 13px; font-weight: 500; }
+
+  h2.page { font-size: 22px; font-weight: 800; padding: 4px 2px; }
+  .sub { font-size: 12px; color: var(--ink-3); padding: 0 2px 12px; }
+
+  .card {
+    background: var(--card); border-radius: 18px; padding: 15px;
+    box-shadow: 0 2px 10px rgba(30,32,48,.05); margin-bottom: 13px;
+  }
+  .card .t { font-weight: 700; font-size: 15px; }
+  .card .m { font-size: 12px; color: var(--ink-2); margin-top: 5px; line-height: 1.6; }
+
+  .lib .t { font-size: 16px; }
+  .lib .m { font-size: 12px; color: var(--ink-2); margin-top: 5px; }
+  .mbar { display: flex; gap: 3px; margin-top: 10px; }
+  .mseg { height: 7px; flex: 1; border-radius: 2px; background: var(--gray-dot); }
+  .mseg.g { background: var(--green); }
+  .mseg.y { background: var(--amber); }
+
+  .addbtn {
+    border: 1.5px dashed #C6C9D6; border-radius: 18px; padding: 16px;
+    text-align: center; color: var(--primary); font-weight: 600; font-size: 14px;
+    background: #fff; margin-top: 4px;
+  }
+
+  .nav {
+    flex: none; height: 58px; background: #fff; border-top: 1px solid var(--line); display: flex;
+  }
+  .nav div {
+    flex: 1; display: flex; flex-direction: column; align-items: center;
+    justify-content: center; gap: 3px; font-size: 11px; color: var(--ink-3);
+  }
+  .nav div.active { color: var(--primary); }
+  .nav .ni { font-size: 17px; }
+
+  .update {
+    background: linear-gradient(135deg, #6A6AE0, #8A7DF0); color: #fff;
+    border-radius: 18px; padding: 14px; margin-bottom: 14px; display: flex; gap: 11px;
+  }
+  .avatar {
+    width: 34px; height: 34px; border-radius: 11px; flex: none;
+    background: rgba(255,255,255,.22); display: flex; align-items: center;
+    justify-content: center; font-size: 17px;
+  }
+  .update .uh { font-size: 11px; opacity: .8; margin-bottom: 3px; }
+  .update .ut { font-size: 13px; line-height: 1.65; }
+
+  .today {
+    background: #fff; border: 1.5px solid var(--primary-soft); border-radius: 18px;
+    padding: 14px; margin-bottom: 16px;
+  }
+  .today .th { display: flex; align-items: center; gap: 7px; font-weight: 700; font-size: 14px; }
+  .today .tdot { width: 7px; height: 7px; border-radius: 50%; background: var(--amber); }
+  .today .tm { font-size: 12px; color: var(--ink-2); margin: 7px 0 11px; line-height: 1.6; }
+
+  .path-title { font-size: 13px; font-weight: 700; color: var(--ink-2); margin: 4px 2px 10px; }
+  .station { display: flex; gap: 12px; }
+  .rail { display: flex; flex-direction: column; align-items: center; flex: none; width: 18px; }
+  .sdot {
+    width: 16px; height: 16px; border-radius: 50%; flex: none; margin-top: 3px;
+    border: 3px solid #fff; box-shadow: 0 0 0 1.5px var(--gray-dot);
+  }
+  .sdot.green { background: var(--green); box-shadow: 0 0 0 1.5px var(--green); }
+  .sdot.amber { background: var(--amber); box-shadow: 0 0 0 1.5px var(--amber); }
+  .sdot.gray  { background: #fff; }
+  .line { flex: 1; width: 2px; background: var(--line); margin: 3px 0; }
+  .line.dash { background: none; border-left: 2px dashed #D7DAE3; width: 0; }
+  .scard {
+    flex: 1; background: #fff; border-radius: 14px; padding: 11px 13px;
+    margin-bottom: 10px; box-shadow: 0 2px 8px rgba(30,32,48,.05);
+  }
+  .scard .sc-h { display: flex; align-items: center; gap: 7px; }
+  .scard .sc-h b { font-size: 14px; }
+  .scard .sc-s { font-size: 11.5px; color: var(--ink-3); margin-top: 4px; }
+  .badge {
+    font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 6px;
+    background: var(--primary); color: #fff; letter-spacing: .5px;
+  }
+  .badge.warn { background: #FBEFD6; color: #B5832A; }
+  .badge.gray { background: #EAEAF2; color: #9097A8; }
+  .scard.ghost { background: #F1F2F6; box-shadow: none; border: 1px dashed #D7DAE3; }
+  .scard.ghost b { color: var(--ink-3); }
+
+  .notes-h { font-size: 13px; font-weight: 700; color: var(--ink-2); margin: 14px 2px 9px; }
+  .note {
+    border-radius: 13px; padding: 11px 13px; margin-bottom: 9px;
+    font-size: 12px; line-height: 1.6; display: flex; gap: 9px;
+  }
+  .note.warn { background: #FDF3E0; color: #8A6420; }
+  .note.eye  { background: #EAF6F0; color: #2C6B4E; }
+  .note .nico { font-size: 14px; flex: none; }
+
+  .btn {
+    background: var(--primary); color: #fff; border-radius: 14px;
+    padding: 14px; text-align: center; font-weight: 700; font-size: 15px;
+    box-shadow: 0 6px 16px rgba(91,91,214,.32);
+  }
+  .btn.ghost { background: #fff; color: var(--primary); box-shadow: none; border: 1.5px solid var(--primary-soft); }
+  .btn.sm { padding: 10px; font-size: 13px; }
+  .btn.block { margin-top: 6px; }
+  .footer-btn { flex: none; padding: 14px 18px 18px; background: #F7F8FB; }
+
+  .linkrow {
+    display: flex; justify-content: space-between; padding: 12px 2px;
+    font-size: 13px; color: var(--ink-2); border-top: 1px solid var(--line);
+  }
+  .linkrow .arr { color: var(--ink-3); }
+
+  .kv { font-size: 13px; color: var(--ink-2); line-height: 1.9; }
+  .kv b { color: var(--ink); font-weight: 600; }
+  .bullets { font-size: 13px; color: var(--ink-2); line-height: 1.95; padding-left: 4px; }
+
+  /* 模式选择 */
+  .mode-pick { display: flex; gap: 10px; }
+  .mode-opt {
+    flex: 1; border-radius: 14px; padding: 14px 8px; text-align: center;
+    border: 1.5px solid var(--line); background: #fff;
+  }
+  .mode-opt.on { border-color: var(--primary); background: var(--primary-soft); }
+  .mode-opt .moi { font-size: 20px; }
+  .mode-opt .mot { font-size: 13px; font-weight: 700; margin-top: 5px; }
+  .mode-opt .mos { font-size: 10px; color: var(--ink-3); margin-top: 3px; }
+  .mode-opt.soon { opacity: .65; }
+
+  /* 表单字段 */
+  .field-label { font-size: 12px; font-weight: 700; color: var(--ink-2); margin: 14px 2px 7px; }
+  .field {
+    background: #fff; border: 1px solid var(--line); border-radius: 13px;
+    padding: 13px; font-size: 14px; color: var(--ink-3);
+  }
+  .mm-tiles { display: flex; gap: 9px; }
+  .mm-tile {
+    flex: 1; background: #fff; border: 1px solid var(--line); border-radius: 13px;
+    padding: 13px 6px; text-align: center; font-size: 11px; color: var(--ink-2); font-weight: 600;
+  }
+  .mm-tile .mmi { font-size: 18px; display: block; margin-bottom: 5px; }
+  .mm-added {
+    display: flex; align-items: center; gap: 9px; background: #fff;
+    border-radius: 11px; padding: 10px 12px; margin-top: 9px; font-size: 12px;
+    box-shadow: 0 2px 8px rgba(30,32,48,.05);
+  }
+  .mm-added .x { margin-left: auto; color: var(--ink-3); }
+  .hint { font-size: 11.5px; color: var(--ink-3); line-height: 1.6; margin-top: 10px; }
+
+  /* 空白库 */
+  .empty-hero { text-align: center; padding: 24px 10px 10px; }
+  .empty-hero .ehi { font-size: 42px; }
+  .empty-hero .eht { font-size: 17px; font-weight: 800; margin-top: 12px; }
+  .empty-hero .ehm { font-size: 12.5px; color: var(--ink-2); line-height: 1.75; margin-top: 9px; }
+
+  /* 录音 */
+  .rec-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 6px 2px 14px; font-size: 13px; font-weight: 600;
+  }
+  .rec-dot { color: #E5484D; }
+  .timer { font-size: 28px; font-weight: 800; letter-spacing: 2px; text-align: center; padding: 6px 0 4px; }
+  .timer-s { text-align: center; font-size: 11px; color: var(--ink-3); margin-bottom: 14px; }
+  .wave { display: flex; gap: 3px; align-items: center; justify-content: center; height: 40px; margin-bottom: 16px; }
+  .wave i { width: 3px; background: var(--primary); border-radius: 2px; opacity: .55; }
+  .rec-tools { display: flex; gap: 10px; margin: 16px 0; }
+  .rec-tools div {
+    flex: 1; background: #fff; border-radius: 13px; padding: 12px; text-align: center;
+    font-size: 12.5px; font-weight: 600; color: var(--ink-2); box-shadow: 0 2px 8px rgba(30,32,48,.05);
+  }
+  .stopbtn {
+    width: 88px; height: 88px; border-radius: 50%; margin: 6px auto 0;
+    background: #fff; border: 2px solid #F0D3D4; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 3px; color: #E5484D;
+    font-weight: 700; font-size: 13px; box-shadow: 0 6px 18px rgba(229,72,77,.16);
+  }
+
+  /* 处理进度 */
+  .proc-spin {
+    width: 70px; height: 70px; border-radius: 50%; margin: 26px auto 18px;
+    border: 5px solid var(--primary-soft); border-top-color: var(--primary);
+  }
+  .proc-title { text-align: center; font-size: 16px; font-weight: 700; }
+  .proc-sub { text-align: center; font-size: 12px; color: var(--ink-3); margin: 6px 0 22px; }
+  .proc-step {
+    display: flex; align-items: center; gap: 11px; background: #fff;
+    border-radius: 12px; padding: 12px 14px; margin-bottom: 9px; font-size: 13px;
+    box-shadow: 0 2px 8px rgba(30,32,48,.05);
+  }
+  .proc-step .pci { width: 18px; text-align: center; flex: none; }
+  .proc-step.done { color: var(--ink-2); }
+  .proc-step.done .pci { color: var(--green); }
+  .proc-step.now .pci { color: var(--primary); }
+  .proc-step.wait { color: var(--ink-3); }
+
+  /* 总结节点 */
+  .secnum {
+    display: inline-flex; width: 18px; height: 18px; border-radius: 6px;
+    background: var(--primary); color: #fff; font-size: 11px; font-weight: 700;
+    align-items: center; justify-content: center; margin-right: 7px;
+  }
+  .sec-h { font-size: 14px; font-weight: 700; display: flex; align-items: center; margin-bottom: 7px; }
+  .correct { font-size: 11px; color: var(--ink-3); margin-top: 8px; }
+  .quiz-cta {
+    background: linear-gradient(135deg, #F0EFFF, #E6E4FF); border-radius: 16px;
+    padding: 15px; text-align: center; margin: 4px 0 6px;
+  }
+  .quiz-cta .qt { font-size: 13px; color: var(--primary-deep); font-weight: 600; margin-bottom: 10px; }
+  .askbar {
+    background: #fff; border: 1px solid var(--line); border-radius: 13px;
+    padding: 12px; font-size: 13px; color: var(--ink-3); margin-top: 12px;
+  }
+
+  /* 学习节点编排 */
+  .plan-item {
+    display: flex; gap: 11px; background: #fff; border-radius: 13px;
+    padding: 12px 13px; margin-bottom: 9px; box-shadow: 0 2px 8px rgba(30,32,48,.05);
+  }
+  .plan-no {
+    width: 22px; height: 22px; border-radius: 7px; flex: none; background: var(--primary-soft);
+    color: var(--primary-deep); font-size: 12px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .plan-item .pt { font-size: 13.5px; font-weight: 600; }
+  .plan-item .pm { font-size: 11px; color: var(--ink-3); margin-top: 3px; }
+  .ptag { font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 6px; margin-left: 6px; }
+  .ptag.solve { background: #FBEFD6; color: #B5832A; }
+  .ptag.review { background: #E3F4EC; color: var(--green); }
+
+  /* 测验 */
+  .qprog { font-size: 12px; color: var(--ink-3); text-align: right; padding: 4px 2px; }
+  .qbar { height: 5px; background: var(--line); border-radius: 3px; margin: 4px 2px 18px; }
+  .qbar i { display: block; height: 100%; width: 33%; background: var(--primary); border-radius: 3px; }
+  .qstem { font-size: 16px; font-weight: 700; line-height: 1.6; padding: 6px 2px 14px; }
+  .answer {
+    background: #fff; border: 1px solid var(--line); border-radius: 13px;
+    min-height: 80px; padding: 12px; font-size: 13px; color: var(--ink-3);
+  }
+  .ans-tools { display: flex; gap: 10px; margin: 11px 0; }
+  .mic {
+    width: 46px; height: 46px; border-radius: 13px; background: var(--primary-soft);
+    color: var(--primary); display: flex; align-items: center; justify-content: center;
+    font-size: 19px; flex: none;
+  }
+  .ans-tools .btn { flex: 1; }
+  .ans-or { text-align: center; font-size: 11px; color: var(--ink-3); margin: 2px 0; }
+  .review-box {
+    background: #EAF6F0; border-radius: 13px; padding: 12px; font-size: 12.5px;
+    line-height: 1.7; color: #2C6B4E; margin-top: 12px;
+  }
+  .review-box .rh { font-weight: 700; margin-bottom: 4px; }
+
+  /* 闪卡 */
+  .flash {
+    background: #fff; border-radius: 18px; box-shadow: 0 6px 20px rgba(30,32,48,.1);
+    padding: 26px 18px; text-align: center; margin: 16px 0 8px; min-height: 230px;
+    display: flex; flex-direction: column; justify-content: center;
+  }
+  .flash .fq { font-size: 13px; color: var(--ink-3); margin-bottom: 12px; }
+  .flash .fdiv { height: 1px; background: var(--line); margin: 16px 0; }
+  .flash .fnote { font-size: 12px; color: var(--ink-2); line-height: 1.7; }
+  .flash .fnote b { font-size: 15px; }
+  .flip-hint { text-align: center; font-size: 11px; color: var(--ink-3); margin-bottom: 14px; }
+  .rate { display: flex; gap: 10px; }
+  .rate div { flex: 1; border-radius: 13px; padding: 13px; text-align: center; font-weight: 700; font-size: 14px; }
+  .rate .forget { background: #FDECEC; color: #D6494E; }
+  .rate .know { background: #E3F4EC; color: var(--green); }
+
+  /* 结果 */
+  .score-ring {
+    width: 122px; height: 122px; border-radius: 50%; margin: 16px auto 6px;
+    background: conic-gradient(var(--green) 0 66%, var(--line) 66% 100%);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .score-ring .inner {
+    width: 96px; height: 96px; border-radius: 50%; background: #F7F8FB;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+  }
+  .score-ring .big { font-size: 27px; font-weight: 800; }
+  .score-ring .sm { font-size: 11px; color: var(--ink-3); }
+  .sig-h { font-size: 13px; font-weight: 700; color: var(--ink-2); margin: 16px 2px 10px; }
+  .sigrow {
+    display: flex; align-items: center; gap: 9px; background: #fff;
+    border-radius: 12px; padding: 11px 13px; margin-bottom: 8px; font-size: 13px;
+    box-shadow: 0 2px 8px rgba(30,32,48,.05);
+  }
+  .sigrow .grow { flex: 1; }
+  .pill { font-size: 10px; font-weight: 700; padding: 3px 9px; border-radius: 8px; }
+  .pill.green { background: #E3F4EC; color: var(--green); }
+  .pill.amber { background: #FBEFD6; color: #B5832A; }
+  .sigrow .link { font-size: 10.5px; color: var(--ink-3); margin-top: 3px; }
+</style>
+</head>
+<body>
+
+<div class="board-head">
+  <h1>知了知了 · MVP 视觉原型 — 上课模式 + 学习模式</h1>
+  <p>低保真视觉原型 · 信息结构依据 docs/product/concept.md · 共 12 屏 · 配色与品牌为初版,可调</p>
+</div>
+<div class="legend">
+  <span><i class="ldot" style="background:#2BB673"></i>绿 · 已掌握</span>
+  <span><i class="ldot" style="background:#EFA935"></i>黄 · 有疑问 / 待复习</span>
+  <span><i class="ldot" style="background:#C7CBD6"></i>灰 · 未涉及</span>
+</div>
+
+<div class="section-title">入口与学习脉络</div>
+<div class="deck">
+
+  <!-- 1 库列表 -->
+  <div class="frame">
+    <div class="phone"><div class="screen">
+      <div class="statusbar"><span>9:41</span><span class="dots">●●● ᯤ ▮</span></div>
+      <div class="body">
+        <h2 class="page">我的学习库</h2>
+        <div class="sub">3 条学习路径进行中</div>
+        <div class="card lib">
+          <div class="t">设计史</div>
+          <div class="m">已上 3 次课 · 2 处待解决</div>
+          <div class="mbar"><i class="mseg g"></i><i class="mseg g"></i><i class="mseg g"></i><i class="mseg y"></i><i class="mseg y"></i><i class="mseg"></i><i class="mseg"></i></div>
+        </div>
+        <div class="card lib">
+          <div class="t">中国近现代史</div>
+          <div class="m">已上 1 次课</div>
+          <div class="mbar"><i class="mseg g"></i><i class="mseg y"></i><i class="mseg"></i><i class="mseg"></i><i class="mseg"></i><i class="mseg"></i><i class="mseg"></i></div>
+        </div>
+        <div class="card lib">
+          <div class="t">西方哲学史 <span class="badge gray">示例</span></div>
+          <div class="m">demo 库 · 看看 3 次课后会变成什么样</div>
+          <div class="mbar"><i class="mseg g"></i><i class="mseg g"></i><i class="mseg g"></i><i class="mseg g"></i><i class="mseg y"></i><i class="mseg g"></i><i class="mseg y"></i></div>
+        </div>
+        <div class="addbtn">+ 新建学习库</div>
+      </div>
+      <div class="nav">
+        <div class="active"><span class="ni">▦</span>学习库</div>
+        <div><span class="ni">◔</span>我的</div>
+      </div>
+    </div></div>
+    <div class="caption"><b>1 · 库列表 / 首页</b><br>卡片用掌握分布微条(绿/黄/灰),不用"进度"。含只读 demo 库。</div>
+  </div>
+
+  <!-- 2 新建学习库 -->
+  <div class="frame">
+    <div class="phone"><div class="screen">
+      <div class="statusbar"><span>9:41</span><span class="dots">●●● ᯤ ▮</span></div>
+      <div class="body">
+        <div class="topbar"><span class="back">‹</span>新建学习库</div>
+
+        <div class="field-label">学习方式</div>
+        <div class="mode-pick">
+          <div class="mode-opt on">
+            <div class="moi">🎙</div><div class="mot">课程学习</div>
+            <div class="mos">有课要上 · 录音沉淀</div>
+          </div>
+          <div class="mode-opt soon">
+            <div class="moi">📚</div><div class="mot">自主学习</div>
+            <div class="mos">自学资料 · 即将开放</div>
+          </div>
+        </div>
+
+        <div class="field-label">库名</div>
+        <div class="field">例如:设计史</div>
+
+        <div class="field-label">课程资料(可选)</div>
+        <div class="mm-tiles">
+          <div class="mm-tile"><span class="mmi">📄</span>传文档</div>
+          <div class="mm-tile"><span class="mmi">📷</span>拍照</div>
+          <div class="mm-tile"><span class="mmi">🖼</span>相册</div>
+          <div class="mm-tile"><span class="mmi">✍️</span>贴文字</div>
+        </div>
+        <div class="mm-added"><span>📄</span><span>设计史课程大纲.pdf</span><span class="x">✕</span></div>
+
+        <div class="hint">
+          课程学习库的知识主要来自课堂录音——资料可以先空着,<br>
+          上完第一节课,脉络就会开始生长。
+        </div>
+      </div>
+      <div class="footer-btn"><div class="btn">创建学习库</div></div>
+    </div></div>
+    <div class="caption"><b>2 · 新建学习库 · 双模式</b><br>课程学习 / 自主学习二选一;MVP 专注课程学习,自主学习占位。</div>
+  </div>
+
+  <!-- 3 空白库页 -->
+  <div class="frame">
+    <div class="phone"><div class="screen">
+      <div class="statusbar"><span>9:41</span><span class="dots">●●● ᯤ ▮</span></div>
+      <div class="body">
+        <div class="topbar"><span class="back">‹</span>设计史<span class="grow"></span><span class="ico">课程学习</span></div>
+        <div class="empty-hero">
+          <div class="ehi">🌱</div>
+          <div class="eht">脉络会从这里长出来</div>
+          <div class="ehm">
+            上完第一节课,小知会把课堂内容整理成<b>学习脉络</b>——<br>
+            它会随你一节节上课,慢慢长大。
+          </div>
+        </div>
+        <div class="path-title" style="margin-top:6px">课程脉络 · 预览</div>
+        <div class="station">
+          <div class="rail"><div class="sdot gray"></div><div class="line dash"></div></div>
+          <div class="scard ghost"><div class="sc-h"><b>第 1 课 · 上课后生成</b></div></div>
+        </div>
+        <div class="station">
+          <div class="rail"><div class="sdot gray"></div><div class="line dash"></div></div>
+          <div class="scard ghost"><div class="sc-h"><b>第 2 课 · ……</b></div></div>
+        </div>
+        <div class="station">
+          <div class="rail"><div class="sdot gray"></div></div>
+          <div class="scard ghost"><div class="sc-h"><b>知识点与疑问会逐课沉淀</b></div></div>
+        </div>
+      </div>
+      <div class="footer-btn"><div class="btn">🎙 上第一节课</div></div>
+    </div></div>
+    <div class="caption"><b>3 · 空白库页(课程学习,冷启动)</b><br>新建库后的首屏;用淡化预览传达"脉络会长大",不是录音器。</div>
+  </div>
+
+  <!-- 4 库主页 = 脉络 + 今日学习 -->
+  <div class="frame">
+    <div class="phone"><div class="screen">
+      <div class="statusbar"><span>9:41</span><span class="dots">●●● ᯤ ▮</span></div>
+      <div class="body">
+        <div class="topbar"><span class="back">‹</span>设计史<span class="grow"></span><span class="ico">历史</span></div>
+        <div class="update">
+          <div class="avatar">🎧</div>
+          <div>
+            <div class="uh">小知 · 本次更新</div>
+            <div class="ut">第 3 次课讲了现代主义起源,我把它接到了"装饰 vs 功能"那条暗线上。</div>
+          </div>
+        </div>
+        <div class="today">
+          <div class="th"><span class="tdot"></span>今日学习</div>
+          <div class="tm">小知给你排了 5 个该复习的点,约 18 分钟——其中第 2 课那个疑问还悬着。</div>
+          <div class="btn sm">开始今日学习 →</div>
+        </div>
+        <div class="path-title">学习路径</div>
+        <div class="station">
+          <div class="rail"><div class="sdot green"></div><div class="line"></div></div>
+          <div class="scard"><div class="sc-h"><b>第 1 课 · 工艺美术运动</b></div><div class="sc-s">已掌握</div></div>
+        </div>
+        <div class="station">
+          <div class="rail"><div class="sdot amber"></div><div class="line"></div></div>
+          <div class="scard"><div class="sc-h"><b>第 2 课 · 新艺术运动</b><span class="badge warn">⚠ 疑问</span></div><div class="sc-s">有疑问悬着</div></div>
+        </div>
+        <div class="station">
+          <div class="rail"><div class="sdot green"></div><div class="line dash"></div></div>
+          <div class="scard"><div class="sc-h"><b>第 3 课 · 现代主义起源</b><span class="badge">NEW</span></div><div class="sc-s">已掌握 · 课后测验未做</div></div>
+        </div>
+        <div class="station">
+          <div class="rail"><div class="sdot gray"></div></div>
+          <div class="scard ghost"><div class="sc-h"><b>下次预告 · 包豪斯</b></div></div>
+        </div>
+        <div class="notes-h">学伴便签</div>
+        <div class="note warn"><span class="nico">⚠</span><span>还没解决:新艺术运动 vs 工艺美术运动 怎么区分(第 2 课标记)</span></div>
+        <div class="note eye"><span class="nico">👁</span><span>我观察到:"对装饰的态度"是这门课的一条暗线</span></div>
+      </div>
+      <div class="footer-btn"><div class="btn">🎙 开始上课</div></div>
+    </div></div>
+    <div class="caption"><b>4 · 库主页 = 学习脉络 + 今日学习</b><br>双入口:今日学习卡(学习模式)+ 开始上课(上课模式)。</div>
+  </div>
+
+  <!-- 5 单站详情 -->
+  <div class="frame">
+    <div class="phone"><div class="screen">
+      <div class="statusbar"><span>9:41</span><span class="dots">●●● ᯤ ▮</span></div>
+      <div class="body">
+        <div class="topbar"><span class="back">‹</span>第 3 课 · 现代主义起源</div>
+        <div class="card">
+          <div class="t">知识提炼</div>
+          <div class="bullets" style="margin-top:8px">· 形式追随功能<br>· 老师反复对比 装饰 vs 功能<br>· 现代主义对工业化的态度转变<br>· 与新艺术运动形成对照</div>
+        </div>
+        <div class="card">
+          <div class="t">你的状态</div>
+          <div class="kv" style="margin-top:6px">课后测验：<b>未做</b><br>课中标记：<b>无</b></div>
+          <div class="btn ghost block">做课后测验 →</div>
+        </div>
+        <div class="linkrow"><span>查看完整总结</span><span class="arr">›</span></div>
+        <div class="linkrow"><span>查看完整转写稿</span><span class="arr">›</span></div>
+      </div>
+    </div></div>
+    <div class="caption"><b>5 · 脉络第 2 层 · 单站详情</b><br>点路径站点进入;知识提炼 + 你的状态。</div>
+  </div>
+
+</div>
+
+<div class="section-title">上课模式</div>
+<div class="deck">
+
+  <!-- 6 录音中 -->
+  <div class="frame">
+    <div class="phone"><div class="screen">
+      <div class="statusbar"><span>9:41</span><span class="dots">●●● ᯤ ▮</span></div>
+      <div class="body">
+        <div class="rec-head"><span>设计史 · 上课中</span><span class="rec-dot">● 录音中</span></div>
+        <div class="timer">00:32:18</div>
+        <div class="timer-s">本次预计 60 分钟 · 录音已自动分段保存</div>
+        <div class="wave">
+          <i style="height:8px"></i><i style="height:20px"></i><i style="height:34px"></i>
+          <i style="height:14px"></i><i style="height:28px"></i><i style="height:38px"></i>
+          <i style="height:18px"></i><i style="height:10px"></i><i style="height:26px"></i>
+          <i style="height:34px"></i><i style="height:16px"></i><i style="height:22px"></i>
+          <i style="height:30px"></i><i style="height:12px"></i><i style="height:24px"></i>
+          <i style="height:18px"></i><i style="height:32px"></i><i style="height:9px"></i>
+        </div>
+        <div class="card" style="text-align:center;margin-top:4px">
+          <div style="font-weight:700;font-size:14px">专注听课就好</div>
+          <div style="font-size:12px;color:var(--ink-2);margin-top:6px;line-height:1.7">
+            转写、总结和知识整理都交给课后。<br>听到没懂的,点一下「标记疑问」。
+          </div>
+        </div>
+        <div class="rec-tools"><div>⚑ 标记疑问</div><div>📎 传课件</div></div>
+        <div class="stopbtn"><span style="font-size:20px">⏹</span>结束课</div>
+      </div>
+    </div></div>
+    <div class="caption"><b>6 · 上课模式 · 录音中</b><br>极简录音页,不在课中推转写流;前台连续录 + 自动分段。</div>
+  </div>
+
+  <!-- 7 处理进度 -->
+  <div class="frame">
+    <div class="phone"><div class="screen">
+      <div class="statusbar"><span>9:41</span><span class="dots">●●● ᯤ ▮</span></div>
+      <div class="body">
+        <div class="proc-spin"></div>
+        <div class="proc-title">正在整理这节课…</div>
+        <div class="proc-sub">小知在把今天的内容接进脉络,约 1 分钟</div>
+        <div class="proc-step done"><span class="pci">✓</span><span>转写课堂录音</span></div>
+        <div class="proc-step done"><span class="pci">✓</span><span>提炼知识点,并入知识体系</span></div>
+        <div class="proc-step now"><span class="pci">⟳</span><span>重写学习脉络</span></div>
+        <div class="proc-step wait"><span class="pci">○</span><span>生成课堂总结</span></div>
+        <div class="card" style="margin-top:16px;display:flex;gap:11px">
+          <div class="avatar" style="background:var(--primary-soft);color:var(--primary)">🎧</div>
+          <div style="font-size:12px;color:var(--ink-2);line-height:1.65">
+            这节的"现代主义"和第 1、2 课能接上,我正在更新暗线。
+          </div>
+        </div>
+      </div>
+    </div></div>
+    <div class="caption"><b>7 · 课后处理进度</b><br>异步流水线状态轮询;强调"接进脉络",不只是"生成完成"。</div>
+  </div>
+
+  <!-- 8 课堂总结节点 -->
+  <div class="frame">
+    <div class="phone"><div class="screen">
+      <div class="statusbar"><span>9:41</span><span class="dots">●●● ᯤ ▮</span></div>
+      <div class="body">
+        <div class="topbar"><span class="back">‹</span>第 3 课 · 课堂总结</div>
+        <div class="card">
+          <div class="sec-h"><span class="secnum">1</span>完整总结</div>
+          <div style="font-size:12.5px;color:var(--ink-2);line-height:1.7">
+            本节围绕现代主义的起源,从对装饰的批判讲起,论述"形式追随功能"如何成为新的设计准则…… <span style="color:var(--primary)">展开</span>
+          </div>
+          <div class="correct">🚩 哪里不对?告诉小知</div>
+        </div>
+        <div class="card">
+          <div class="sec-h"><span class="secnum">2</span>要点提炼</div>
+          <div class="bullets">· 形式追随功能<br>· 装饰 vs 功能 的对立<br>· 对工业化的态度转变</div>
+        </div>
+        <div class="card">
+          <div class="sec-h"><span class="secnum">3</span>核心问题</div>
+          <div class="bullets">· 现代主义为何反对装饰?<br>· 它和新艺术运动的根本区别?</div>
+        </div>
+        <div class="linkrow" style="border-radius:13px;background:#fff;border:none;padding:13px;box-shadow:0 2px 8px rgba(30,32,48,.05);margin-bottom:12px">
+          <span>📄 完整课堂转写稿</span><span class="arr">›</span>
+        </div>
+        <div class="quiz-cta">
+          <div class="qt">试 3 题,看今天听进去多少</div>
+          <div class="btn">开始测验 →</div>
+        </div>
+        <div class="askbar">💬 对这节课追问…</div>
+      </div>
+    </div></div>
+    <div class="caption"><b>8 · 课堂总结节点</b><br>三段式 + 完整转写稿入口;课后立即固化,带纠错入口。</div>
+  </div>
+
+</div>
+
+<div class="section-title">学习模式与模块(共享)</div>
+<div class="deck">
+
+  <!-- 9 学习节点 · AI 编排 -->
+  <div class="frame">
+    <div class="phone"><div class="screen">
+      <div class="statusbar"><span>9:41</span><span class="dots">●●● ᯤ ▮</span></div>
+      <div class="body">
+        <div class="topbar"><span class="back">‹</span>今日学习</div>
+        <div class="update">
+          <div class="avatar">🎧</div>
+          <div>
+            <div class="uh">小知 · 为你排的</div>
+            <div class="ut">第 2 课"新艺术 vs 工艺美术"那个疑问还悬着,先解决它;另有 3 个点到复习点了。约 18 分钟。</div>
+          </div>
+        </div>
+        <div class="path-title">本次安排</div>
+        <div class="plan-item">
+          <div class="plan-no">1</div>
+          <div><div class="pt">讲解 + 测验 · 新艺术 vs 工艺美术<span class="ptag solve">解疑</span></div>
+          <div class="pm">第 2 课标记的疑问</div></div>
+        </div>
+        <div class="plan-item">
+          <div class="plan-no">2</div>
+          <div><div class="pt">闪卡 · 工艺美术运动<span class="ptag review">到期复习</span></div>
+          <div class="pm">上次复习已 8 天</div></div>
+        </div>
+        <div class="plan-item">
+          <div class="plan-no">3</div>
+          <div><div class="pt">闪卡 · 现代主义起源<span class="ptag review">到期复习</span></div>
+          <div class="pm">学过但还没巩固</div></div>
+        </div>
+        <div class="plan-item">
+          <div class="plan-no">4</div>
+          <div><div class="pt">测验 · 形式追随功能<span class="ptag review">到期复习</span></div>
+          <div class="pm">滚动检验</div></div>
+        </div>
+      </div>
+      <div class="footer-btn"><div class="btn">开始(约 18 分钟)</div></div>
+    </div></div>
+    <div class="caption"><b>9 · 学习节点 · AI 编排视图</b><br>长期规划在这里"可见":排了哪些点、为什么(解疑 / 到期复习)。</div>
+  </div>
+
+  <!-- 10 测验 -->
+  <div class="frame">
+    <div class="phone"><div class="screen">
+      <div class="statusbar"><span>9:41</span><span class="dots">●●● ᯤ ▮</span></div>
+      <div class="body">
+        <div class="topbar"><span class="back">‹</span>测验 · 形式追随功能</div>
+        <div class="qprog">第 1 / 3 题</div>
+        <div class="qbar"><i></i></div>
+        <div class="qstem">现代主义为什么反对装饰?</div>
+        <div class="ans-tools">
+          <div class="mic">🎤</div>
+          <div class="btn">按住说出你的回答</div>
+        </div>
+        <div class="ans-or">或</div>
+        <div class="answer">输入文字回答…</div>
+        <div class="review-box">
+          <div class="rh">小知点评</div>
+          抓到了"功能主义"这一面,但漏了"工业化批量生产"——现代主义反装饰很大程度是因为装饰不适配机器量产。
+          <div class="btn ghost block" style="margin-top:10px">下一题 →</div>
+        </div>
+      </div>
+    </div></div>
+    <div class="caption"><b>10 · 模块 · 测验</b><br>语音作答优先(产品语音优先),也支持文字;题目来自核心问题。</div>
+  </div>
+
+  <!-- 11 闪卡 -->
+  <div class="frame">
+    <div class="phone"><div class="screen">
+      <div class="statusbar"><span>9:41</span><span class="dots">●●● ᯤ ▮</span></div>
+      <div class="body">
+        <div class="topbar"><span class="back">‹</span>闪卡 · 工艺美术运动</div>
+        <div class="qprog">第 2 / 5 张</div>
+        <div class="qbar"><i style="width:40%"></i></div>
+        <div class="flash">
+          <div class="fq">工艺美术运动反对的是什么?</div>
+          <div class="fdiv"></div>
+          <div class="fnote"><b>工业化带来的粗制滥造。</b><br>莫里斯主张回到手工艺,强调材料与制作的真实。</div>
+        </div>
+        <div class="flip-hint">轻点卡片可翻面 · 上面已翻开</div>
+        <div class="rate">
+          <div class="forget">没记住</div>
+          <div class="know">记得</div>
+        </div>
+      </div>
+    </div></div>
+    <div class="caption"><b>11 · 模块 · 闪卡</b><br>翻卡 + 自评;自评结果回写为该卡的记忆强度信号。</div>
+  </div>
+
+  <!-- 12 节点结果 -->
+  <div class="frame">
+    <div class="phone"><div class="screen">
+      <div class="statusbar"><span>9:41</span><span class="dots">●●● ᯤ ▮</span></div>
+      <div class="body">
+        <div class="topbar"><span class="grow"></span>今日学习完成<span class="grow"></span></div>
+        <div class="score-ring"><div class="inner"><div class="big">4 / 5</div><div class="sm">个点掌握</div></div></div>
+        <div class="sig-h">掌握信号已记入脉络</div>
+        <div class="sigrow"><span class="grow"><b>工艺美术运动</b></span><span class="pill green">绿</span></div>
+        <div class="sigrow"><span class="grow"><b>现代主义起源</b></span><span class="pill green">绿</span></div>
+        <div class="sigrow"><span class="grow"><b>形式追随功能</b></span><span class="pill green">绿</span></div>
+        <div class="sigrow">
+          <span class="grow"><b>新艺术 vs 工艺美术</b>
+          <div class="link">🔗 第 2 课的疑问 —— 解开了一半,下次再追</div></span>
+          <span class="pill amber">黄</span>
+        </div>
+        <div class="btn block" style="margin-top:16px">回到学习脉络</div>
+      </div>
+    </div></div>
+    <div class="caption"><b>12 · 节点结果 → 脉络更新</b><br>上课 / 学习通用;信号回写 → 状态色更新 → 脉络 delta。</div>
+  </div>
+
+</div>
+
+</body>
+</html>

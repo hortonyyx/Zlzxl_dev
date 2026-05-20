@@ -30,7 +30,8 @@
 
 按需加载：
 
-- `docs/product/brief.md`：产品方向。
+- `docs/product/concept.md`：产品概念与设计说明（详细，含决策理由）。
+- `docs/product/brief.md`：产品方向（摘要）。
 - `docs/product/backlog.md`：优先级队列。
 - `docs/specs/<feature>/`：当前功能的执行包。
 - `docs/ai/session-notes.md`：决策和重要发现。
