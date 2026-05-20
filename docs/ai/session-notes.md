@@ -140,3 +140,23 @@
   固定色条、路由栈重复、node-summary 测验语义、视觉与 prototype 差距。
 - 已通过 `corepack pnpm run check`。当前仍应停在 GO / NO-GO 闸门前，下一步
   是微信开发者工具走查和产品判断，不进入阶段 3。
+
+## 2026-05-20 微信开发者工具 TS 编译插件修复
+
+走查时点"进入课程学习库"按钮没反应，控制台报
+`Component "pages/index/index" does not have a method "goToMainPath"`。
+
+根因：`project.config.json` 的 `useCompilerPlugins` 之前是 `false`，微信
+开发者工具不会把 `.ts` 编成 `.js`；它发现页面只有 `.ts` 时，会**自动
+生成一个空白 `Page({})` 模板 `.js`**，运行时加载这个空白模板，所以找不到
+任何业务方法。
+
+修复：
+
+- 删除 12 个自动生成的空白 `Zlzl_miniprogram/pages/*/index.js`。
+- `project.config.json` 改为 `"useCompilerPlugins": ["typescript"]`，
+  工具会自动编译 .ts。
+
+约束补充：AGENTS.md 写"不要修改 project.config.json，除非任务明确要求"
+——此项目本来就需要 TS 编译，这是基建必要项，记录于此供后续模型不再
+踩坑。后续若需引入 sass / less 等可在 `useCompilerPlugins` 数组里扩展。
