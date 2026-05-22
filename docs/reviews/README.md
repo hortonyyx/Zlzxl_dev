@@ -48,6 +48,7 @@ results/YYYY-MM-DD_<目标>_<审阅方>_review.md
 - `requests/2026-05-20_mvp-d1-1-recorder_claude_review_request.md` — D1.1 录音阻塞修复，Claude 审阅请求包。
 - `requests/2026-05-21_mvp-e-processing-polling_claude_review_request.md` — 阶段 E 处理页轮询与失败重试，Claude 审阅请求包。
 - `requests/2026-05-21_mvp-e-tencent-asr_claude_review_request.md` — 阶段 E 腾讯云 ASR 接入，Claude 审阅请求包。
+- `requests/2026-05-22_mvp-e-llm-output_claude_review_request.md` — 阶段 E LLM 课堂输出接入，Claude 审阅请求包。
 
 ## 审阅结果
 
@@ -60,3 +61,4 @@ results/YYYY-MM-DD_<目标>_<审阅方>_review.md
 - `results/2026-05-20_mvp-d1-1-recorder_claude_review.md` — D1.1 录音阻塞修复，Claude 审阅。
 - `results/2026-05-21_mvp-e-processing-polling_claude_review.md` — 阶段 E 处理页轮询与失败重试，Claude 审阅。
 - `results/2026-05-21_mvp-e-tencent-asr_claude_review.md` — 阶段 E 腾讯云 ASR 接入，Claude 审阅。
+- `results/2026-05-22_mvp-e-llm-output_claude_review.md` — 阶段 E LLM 课堂输出接入，Claude 审阅。
